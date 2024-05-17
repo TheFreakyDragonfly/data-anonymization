@@ -1,0 +1,10 @@
+1;"Lieferant A";"Andersen";"Elizabeth A.";;"Vertriebsmanagerin";;;;;;;;;;;;
+2;"Lieferant B";"Weiler";"Cornelia";;"Vertriebsmanagerin";;;;;;;;;;;;
+3;"Lieferant C";"Kelley";"Madeleine";;"Vertriebsmitarbeiterin";;;;;;;;;;;;
+4;"Lieferant D";"Sato";"Naoki";;"Marketing Manager";;;;;;;;;;;;
+5;"Lieferant E";"Hernandez-Echevarria";"Amaya";;"Vertriebsmanagerin";;;;;;;;;;;;
+6;"Lieferant F";"Hayakawa";"Satomi";;"Marketingassistent";;;;;;;;;;;;
+7;"Lieferant G";"Glasson";"Stuart";;"Marketing Manager";;;;;;;;;;;;
+8;"Lieferant H";"Dunton";"Bryn Paul";;"Vertriebsmitarbeiter";;;;;;;;;;;;
+9;"Lieferant I";"Sandberg";"Mikael";;"Vertriebsmanager";;;;;;;;;;;;
+10;"Lieferant J";"Sousa";"Luis";;"Vertriebsmanager";;;;;;;;;;;;
