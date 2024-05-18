@@ -1,5 +1,3 @@
-import pandas
-
 from src.app import Prototype
 from unittest import TestCase
 from pandas import Series, DataFrame
