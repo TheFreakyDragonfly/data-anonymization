@@ -7,10 +7,9 @@ COLUMN_1, COLUMN_2, COLUMN_3, COLUMN_4, COLUMN_5, COLUMN_6 = (
 
 
 class Prototype:
-    def __init__(self):
+    def __init__(self, file_path):
         try:
-            path = '../data/data.xlsx'
-            self.data = self.read_xlsx(path)
+            self.data = self.read_xlsx(file_path)
         except FileNotFoundError as e:
             raise FileNotFoundError(f"File can't be opened, cuz not found: {e}")
 
@@ -22,8 +21,8 @@ class Prototype:
         print("Executed Anonymization...")
 
     @staticmethod
-    def read_xlsx(path: str):
-        data = pandas.read_excel(path)
+    def read_xlsx(file_path: str):
+        data = pandas.read_excel(file_path)
         pandas.set_option('display.max_columns', None)
         return data
 
@@ -97,4 +96,5 @@ class Prototype:
 
 
 if __name__ == '__main__':
-    Prototype().anonymize()
+    path = '../data/data.xlsx'
+    Prototype(path).anonymize()
