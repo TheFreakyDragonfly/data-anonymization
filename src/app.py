@@ -8,28 +8,34 @@ COLUMN_1, COLUMN_2, COLUMN_3, COLUMN_4, COLUMN_5, COLUMN_6 = (
 
 class Prototype:
     def __init__(self):
-        self.data = self.read_xlsx()
+        try:
+            path = '../data/data.xlsx'
+            self.data = self.read_xlsx(path)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"File can't be opened, cuz not found: {e}")
 
     def anonymize(self):
         self.modifying_str(self.data)
-        self.modifying_numbers(self.data)
+        manipulated_list = self.modifying_numbers(self.data[COLUMN_3])
+        self.data[COLUMN_3] = pandas.Series(manipulated_list)
         self.write_excel()
+        print("Executed Anonymization...")
 
     @staticmethod
-    def read_xlsx():
-        data = pandas.read_excel('../data/data.xlsx')
+    def read_xlsx(path: str):
+        data = pandas.read_excel(path)
         pandas.set_option('display.max_columns', None)
         return data
 
     @staticmethod
-    def filter_special_chars(element: list, special_chars: list):
+    def filter_special_chars(element: str, special_chars: list):
         for single_char in element:
             if not (65 <= ord(single_char) <= 90 or 97 <= ord(single_char) <= 122) and ord(single_char) != 32:
                 special_chars.append(single_char)
         return list(filter(partial(is_not, ','), special_chars))
 
     @staticmethod
-    def replace_str(data, special_chars: list, data_obj: str):
+    def replace_str(data: str, special_chars: list, data_obj: str):
         if data_obj == COLUMN_6 or data_obj == COLUMN_5:
             changed_obj = data_obj
         elif data_obj == COLUMN_2:
@@ -64,23 +70,28 @@ class Prototype:
         (int(every_id / 10) * 10) + 10      >   0-9  =  10;  10-19  = 20;
         (int(every_id / 100) * 100) + 100   >   0-99 = 100; 100-299 = 200;
     '''
-
-    def modifying_numbers(self, data: pandas.DataFrame):
-        customer_id = data[COLUMN_3]
-        id_list = customer_id.tolist()
+    @staticmethod
+    def modifying_numbers(data: pandas.Series):
+        id_list = data.tolist()
         manipulated_list = []
         for every_id in id_list:
-            generalization = int(every_id / 100) * 100 + 100
-            manipulated_list.append(generalization)
-        self.data[COLUMN_3] = pandas.Series(manipulated_list)
+            if isinstance(every_id, int) and every_id >= 0:
+                generalization = int(every_id / 100) * 100 + 100
+                manipulated_list.append(generalization)
+            else:
+                manipulated_list.append("naN")
+        return manipulated_list
 
     """
         Only Use for debugging
     """
-
     def print_data(self, string):
         print(f"{string} Data was:\n", self.data)
 
+    '''
+        Change name and path to original file, 
+        so it overwrites the data
+    '''
     def write_excel(self):
         self.data.to_excel("anonymized_data.xlsx")
 
