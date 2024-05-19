@@ -51,3 +51,17 @@ class Test(TestCase):
         other_data = Series(self.nums)
         self.assertEqual([300, 300, 400, 900, 3000, 100, "naN"],
                          Prototype.modifying_numbers(other_data))
+
+    def test_modifying_email(self):
+        self.assertEqual(
+            'prefix.prefix@domain.domain.com',
+            Prototype.anonymize_email(
+                'john.smith@mail.example.com'
+            )
+        )
+        self.assertEqual(
+            '^äöü-?`´*+prefix.^äöü-?`´*+prefix@^äöü-?`´*+domain.^äöü-?`´*+domain.^äöü-?`´*+com',
+            Prototype.anonymize_email(
+                '^äöü-?`´*+john.^äöü-?`´*+smith@^äöü-?`´*+mail.^äöü-?`´*+example.^äöü-?`´*+com'
+            )
+        )
