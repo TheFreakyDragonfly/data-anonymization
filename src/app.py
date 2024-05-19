@@ -6,10 +6,6 @@ import re
 COLUMN_1, COLUMN_2, COLUMN_3, COLUMN_4, COLUMN_5, COLUMN_6 = (
     'Kontaktperson', 'Speichern unter', "ID", 'Firma', 'Nachname', 'Vorname')
 
-COLUMN_7, COLUMN_8, COLUMN_9, COLUMN_10, COLUMN_11, COLUMN_12 = (
-    'E-Mail-Adresse', 'Position', 'Telefon (geschäftlich)', 'Telefon privat', 'Mobiltelefon', 'Faxnummer'
-)
-
 
 class Prototype:
     def __init__(self, file_path):
@@ -34,15 +30,16 @@ class Prototype:
     def anonymize_column(self, column):
         """
         Method that handles individual columns by deciding based on regex.
-
         :param column: Column to determine and apply anonymization for.
         :return: nothing
         """
         function_to_apply = self.default_anonymization_function
 
-        # pick out function
+        # pick out function based on regex match
         if re.match(".*(EMAIL|email|Email|E-Mail|E-mail).*", column):
             function_to_apply = Prototype.anonymize_email
+        elif re.match(".*(Position|position|Stelle|stelle).*", column):
+            function_to_apply = Prototype.anonymize_position
 
         # apply function to all values in column
         manipulated_list = []
@@ -67,7 +64,6 @@ class Prototype:
     def anonymize_email(email: str):
         """
         Performs various techniques to generate anonymized email addresses. Keeps domain at the end intact.
-
         :param email: Email address to be anonymized
         :return: Anonymized email address
         """
@@ -107,6 +103,16 @@ class Prototype:
                 anonymized_email_construction += "." + subsection
 
         return anonymized_email_construction
+
+    @staticmethod
+    def anonymize_position(position: str):
+        """
+        Method to anonymize Position in company.
+        :param position: Position to anonymize.
+        :return: Anonymized position.
+        """
+        special_chars = Prototype.filter_special_chars(position, [])
+        return "".join(special_chars) + "position"
 
     @staticmethod
     def filter_special_chars(element: str, special_chars: list):

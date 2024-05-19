@@ -65,3 +65,17 @@ class Test(TestCase):
                 '^äöü-?`´*+john.^äöü-?`´*+smith@^äöü-?`´*+mail.^äöü-?`´*+example.^äöü-?`´*+com'
             )
         )
+
+    def test_modifying_position(self):
+        self.assertEqual(
+            'position',
+            Prototype.anonymize_position(
+                'Einkaufsmitarbeiter'
+            )
+        )
+        self.assertEqual(
+            'äüöposition',
+            Prototype.anonymize_position(
+                'Einkäüfsmitarbeiterö'
+            )
+        )
