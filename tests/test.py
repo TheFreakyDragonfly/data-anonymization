@@ -79,3 +79,31 @@ class Test(TestCase):
                 'Einkäüfsmitarbeiterö'
             )
         )
+
+    def test_modifying_phone(self):
+        self.assertEqual(
+            '(123)000-0000',
+            Prototype.anonymize_phone(
+                '(123)123-1234'
+            )
+        )
+        self.assertEqual(
+            '(768)000-0000',
+            Prototype.anonymize_phone(
+                '(768)545-2894'
+            )
+        )
+
+    def test_modifying_mobile_phone(self):
+        self.assertEqual(
+            '010 0 000 000 0000',
+            Prototype.anonymize_mobile_phone(
+                '010 1 123 123 1234'
+            )
+        )
+        self.assertEqual(
+            '726 0 000 000 0000',
+            Prototype.anonymize_mobile_phone(
+                '726 7 321 321 4321'
+            )
+        )

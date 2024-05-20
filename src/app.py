@@ -21,7 +21,7 @@ class Prototype:
 
         # Handle columns 6-12
         for i, column in enumerate(self.data.columns):
-            if 6 <= i <= 12:
+            if 6 <= i < 12:
                 self.anonymize_column(column)
 
         self.write_excel()
@@ -40,6 +40,13 @@ class Prototype:
             function_to_apply = Prototype.anonymize_email
         elif re.match(".*(Position|position|Stelle|stelle).*", column):
             function_to_apply = Prototype.anonymize_position
+        elif re.match(".*(Telefon|telefon).*", column):
+            if "Mobil" in column or "mobil" in column:
+                function_to_apply = Prototype.anonymize_mobile_phone
+            else:
+                function_to_apply = Prototype.anonymize_phone
+        elif re.match(".*(Fax|fax).*", column):
+            function_to_apply = Prototype.anonymize_phone
 
         # apply function to all values in column
         manipulated_list = []
@@ -57,7 +64,7 @@ class Prototype:
         return data
 
     @staticmethod
-    def default_anonymization_function(value:str):
+    def default_anonymization_function(value: str):
         return "".join("*" for _ in value)
 
     @staticmethod
@@ -113,6 +120,24 @@ class Prototype:
         """
         special_chars = Prototype.filter_special_chars(position, [])
         return "".join(special_chars) + "position"
+
+    @staticmethod
+    def anonymize_phone(phonenumber: str):
+        if not re.match("\\(\\d{3}\\)\\d{3}-\\d{4}", phonenumber):
+            raise Exception("Phonenumber doesn't follow pattern!")
+
+        anonymized_phonenumber = phonenumber[0:5] + "000-0000"
+
+        return anonymized_phonenumber
+
+    @staticmethod
+    def anonymize_mobile_phone(mobile: str):
+        if not re.match("\\d{3} \\d \\d{3} \\d{3} \\d{4}", mobile):
+            raise Exception("Mobile phone number doesn't follow pattern!")
+
+        anonymized_mobile = mobile[0:3] + " 0 000 000 0000"
+
+        return anonymized_mobile
 
     @staticmethod
     def filter_special_chars(element: str, special_chars: list):
@@ -184,5 +209,5 @@ class Prototype:
 
 
 if __name__ == '__main__':
-    path = '../data/data_+email.xlsx'
+    path = '../data/data_no_blank_columns.xlsx'
     Prototype(path).anonymize()
