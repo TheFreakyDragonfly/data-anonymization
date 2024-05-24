@@ -1,6 +1,7 @@
 from functools import partial
 from operator import is_not
 import pandas
+import re
 
 COLUMN_1, COLUMN_2, COLUMN_3, COLUMN_4, COLUMN_5, COLUMN_6 = (
     'Kontaktperson', 'Speichern unter', "ID", 'Firma', 'Nachname', 'Vorname')
@@ -17,14 +18,126 @@ class Prototype:
         self.modifying_str(self.data)
         manipulated_list = self.modifying_numbers(self.data[COLUMN_3])
         self.data[COLUMN_3] = pandas.Series(manipulated_list)
+
+        # Handle columns 6-12
+        for i, column in enumerate(self.data.columns):
+            if 6 <= i < 12:
+                self.anonymize_column(column)
+
         self.write_excel()
         print("Executed Anonymization...")
+
+    def anonymize_column(self, column):
+        """
+        Method that handles individual columns by deciding based on regex.
+        :param column: Column to determine and apply anonymization for.
+        :return: nothing
+        """
+        function_to_apply = self.default_anonymization_function
+
+        # pick out function based on regex match
+        if re.match(".*(EMAIL|email|Email|E-Mail|E-mail).*", column):
+            function_to_apply = Prototype.anonymize_email
+        elif re.match(".*(Position|position|Stelle|stelle).*", column):
+            function_to_apply = Prototype.anonymize_position
+        elif re.match(".*(Telefon|telefon).*", column):
+            if "Mobil" in column or "mobil" in column:
+                function_to_apply = Prototype.anonymize_mobile_phone
+            else:
+                function_to_apply = Prototype.anonymize_phone
+        elif re.match(".*(Fax|fax).*", column):
+            function_to_apply = Prototype.anonymize_phone
+
+        # apply function to all values in column
+        manipulated_list = []
+        for index, value in self.data[column].items():
+            if isinstance(value, str):
+                manipulated_list.append(function_to_apply(value))
+            else:
+                manipulated_list.append("")
+        self.data[str(column)] = pandas.Series(manipulated_list)
 
     @staticmethod
     def read_xlsx(file_path: str):
         data = pandas.read_excel(file_path)
         pandas.set_option('display.max_columns', None)
         return data
+
+    @staticmethod
+    def default_anonymization_function(value: str):
+        return "".join("*" for _ in value)
+
+    @staticmethod
+    def anonymize_email(email: str):
+        """
+        Performs various techniques to generate anonymized email addresses. Keeps domain at the end intact.
+        :param email: Email address to be anonymized
+        :return: Anonymized email address
+        """
+        sections = email.split("@")
+
+        # Raise exceptions when most basic email format is violated
+        if len(sections) != 2:
+            raise Exception("Email doesnt contain EXACTLY one @!")
+        if "." not in sections[1]:
+            raise Exception("Email does not provide a domain, such as '.com'!")
+
+        # prepare first and second half
+        subsections_in_first_section = sections[0].split(".")
+        subsections_in_first_section_len = len(subsections_in_first_section)
+        subsections_in_second_section = sections[1].split(".")
+        subsections_in_second_section_len = len(subsections_in_second_section)
+
+        # Construct anonymized email from subsections of original email, keeping domain at the end intact
+        anonymized_email_construction = ""
+        for i, subsection in enumerate(subsections_in_first_section):
+            special_characters = Prototype.filter_special_chars(subsection, [])
+            anonymized_email_construction += "".join(special_characters)
+            anonymized_email_construction += "prefix"
+            if i != subsections_in_first_section_len-1:
+                anonymized_email_construction += "."
+
+        anonymized_email_construction += "@"
+
+        for i, subsection in enumerate(subsections_in_second_section):
+            if i != subsections_in_second_section_len - 1:
+                special_characters = Prototype.filter_special_chars(subsection, [])
+                anonymized_email_construction += "".join(special_characters)
+                anonymized_email_construction += "domain"
+                if i != subsections_in_second_section_len - 2:
+                    anonymized_email_construction += "."
+            else:
+                anonymized_email_construction += "." + subsection
+
+        return anonymized_email_construction
+
+    @staticmethod
+    def anonymize_position(position: str):
+        """
+        Method to anonymize Position in company.
+        :param position: Position to anonymize.
+        :return: Anonymized position.
+        """
+        special_chars = Prototype.filter_special_chars(position, [])
+        return "".join(special_chars) + "position"
+
+    @staticmethod
+    def anonymize_phone(phonenumber: str):
+        if not re.match("\\(\\d{3}\\)\\d{3}-\\d{4}", phonenumber):
+            raise Exception("Phonenumber doesn't follow pattern!")
+
+        anonymized_phonenumber = phonenumber[0:5] + "000-0000"
+
+        return anonymized_phonenumber
+
+    @staticmethod
+    def anonymize_mobile_phone(mobile: str):
+        if not re.match("\\d{3} \\d \\d{3} \\d{3} \\d{4}", mobile):
+            raise Exception("Mobile phone number doesn't follow pattern!")
+
+        anonymized_mobile = mobile[0:3] + " 0 000 000 0000"
+
+        return anonymized_mobile
 
     @staticmethod
     def filter_special_chars(element: str, special_chars: list):
@@ -96,5 +209,5 @@ class Prototype:
 
 
 if __name__ == '__main__':
-    path = '../data/data.xlsx'
+    path = '../data/data_no_blank_columns.xlsx'
     Prototype(path).anonymize()

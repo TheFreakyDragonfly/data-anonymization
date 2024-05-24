@@ -51,3 +51,59 @@ class Test(TestCase):
         other_data = Series(self.nums)
         self.assertEqual([300, 300, 400, 900, 3000, 100, "naN"],
                          Prototype.modifying_numbers(other_data))
+
+    def test_modifying_email(self):
+        self.assertEqual(
+            'prefix.prefix@domain.domain.com',
+            Prototype.anonymize_email(
+                'john.smith@mail.example.com'
+            )
+        )
+        self.assertEqual(
+            '^äöü-?`´*+prefix.^äöü-?`´*+prefix@^äöü-?`´*+domain.^äöü-?`´*+domain.^äöü-?`´*+com',
+            Prototype.anonymize_email(
+                '^äöü-?`´*+john.^äöü-?`´*+smith@^äöü-?`´*+mail.^äöü-?`´*+example.^äöü-?`´*+com'
+            )
+        )
+
+    def test_modifying_position(self):
+        self.assertEqual(
+            'position',
+            Prototype.anonymize_position(
+                'Einkaufsmitarbeiter'
+            )
+        )
+        self.assertEqual(
+            'äüöposition',
+            Prototype.anonymize_position(
+                'Einkäüfsmitarbeiterö'
+            )
+        )
+
+    def test_modifying_phone(self):
+        self.assertEqual(
+            '(123)000-0000',
+            Prototype.anonymize_phone(
+                '(123)123-1234'
+            )
+        )
+        self.assertEqual(
+            '(768)000-0000',
+            Prototype.anonymize_phone(
+                '(768)545-2894'
+            )
+        )
+
+    def test_modifying_mobile_phone(self):
+        self.assertEqual(
+            '010 0 000 000 0000',
+            Prototype.anonymize_mobile_phone(
+                '010 1 123 123 1234'
+            )
+        )
+        self.assertEqual(
+            '726 0 000 000 0000',
+            Prototype.anonymize_mobile_phone(
+                '726 7 321 321 4321'
+            )
+        )
