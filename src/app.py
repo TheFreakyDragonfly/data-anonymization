@@ -28,19 +28,12 @@ class Prototype:
         function_to_apply = self.default_anonymization_function
 
         # pick out function based on regex match
-        if re.match(".*(Kontaktperson|kontaktperson).*", column):
-            self.manipulate_data(column)
-        elif re.match(".*(Speichern unter|speichern unter).*", column):
+        if re.match(r".*\b(Kontaktperson|kontaktperson|Speichern\sunter|speichern"
+                    r"\sunter|Firma|firma|Nachname|nachname|Vorname|vorname)\b.*", column):
             self.manipulate_data(column)
         elif re.match(".*(ID|id|iD|Id).*", column):
             obj_list = self.modifying_numbers(column.upper())
             self.data[column] = pandas.Series(obj_list)
-        elif re.match(".*(Firma|firma).*", column):
-            self.manipulate_data(column)
-        elif re.match(".*(Nachname|nachname).*", column):
-            self.manipulate_data(column)
-        elif re.match(".*(Vorname|vorname).*", column):
-            self.manipulate_data(column)
         elif re.match(".*(EMAIL|email|Email|E-Mail|E-mail).*", column):
             function_to_apply = Prototype.anonymize_email
             self.manipulate(function_to_apply, column)
