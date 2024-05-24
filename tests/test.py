@@ -8,7 +8,6 @@ class Test(TestCase):
              "Há+s-W[r?er", "ß?6+*#.,-", "Werner, Hans", "Hans", "Mercedes Benz"]
     columns = ['Kontaktperson', 'Speichern unter',
                'Firma', 'Nachname', 'Vorname']
-    nums = [221, 299, 300, 834, 2911, 0, 342374623]
 
     def test_reading_file(self):
         not_existing_file = '../data/dat.xlsx'
