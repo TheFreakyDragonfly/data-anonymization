@@ -37,7 +37,7 @@ class Prototype:
         elif re.match(".*(EMAIL|email|Email|E-Mail|E-mail).*", column):
             function_to_apply = Prototype.anonymize_email
             self.manipulate(function_to_apply, column)
-        elif re.match(".*(Position|position|Stelle|stelle).*", column):
+        elif re.match(r".*\b(Position|position|Stelle|stelle)\b.*", column):
             function_to_apply = Prototype.anonymize_position
             self.manipulate(function_to_apply, column)
         elif re.match(".*(Telefon|telefon).*", column):
