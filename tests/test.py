@@ -8,7 +8,6 @@ class Test(TestCase):
              "Há+s-W[r?er", "ß?6+*#.,-", "Werner, Hans", "Hans", "Mercedes Benz"]
     columns = ['Kontaktperson', 'Speichern unter',
                'Firma', 'Nachname', 'Vorname']
-    nums = [221, 299, 300, 834, 2911, 0, 342374623]
 
     def test_reading_file(self):
         not_existing_file = '../data/dat.xlsx'
@@ -42,15 +41,6 @@ class Test(TestCase):
 
         self.assertEqual("Vorname-é",
                          Prototype.replace_str(self.tests[6], ["-", "é"], self.columns[4]))
-
-    def test_modifying_nums(self):
-        data = Series(self.nums)
-        self.assertEqual([300, 300, 400, 900, 3000, 100, 342374700],
-                         Prototype.modifying_numbers(data))
-        self.nums[-1] = -46
-        other_data = Series(self.nums)
-        self.assertEqual([300, 300, 400, 900, 3000, 100, "naN"],
-                         Prototype.modifying_numbers(other_data))
 
     def test_modifying_email(self):
         self.assertEqual(

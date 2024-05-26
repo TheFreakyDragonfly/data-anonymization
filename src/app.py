@@ -3,9 +3,6 @@ from operator import is_not
 import pandas
 import re
 
-COLUMN_1, COLUMN_2, COLUMN_3, COLUMN_4, COLUMN_5, COLUMN_6 = (
-    'Kontaktperson', 'Speichern unter', "ID", 'Firma', 'Nachname', 'Vorname')
-
 
 class Prototype:
     def __init__(self, file_path):
@@ -15,13 +12,8 @@ class Prototype:
             raise FileNotFoundError(f"File can't be opened, cuz not found: {e}")
 
     def anonymize(self):
-        self.modifying_str(self.data)
-        manipulated_list = self.modifying_numbers(self.data[COLUMN_3])
-        self.data[COLUMN_3] = pandas.Series(manipulated_list)
-
-        # Handle columns 6-12
         for i, column in enumerate(self.data.columns):
-            if 6 <= i < 12:
+            if 0 <= i < 12:
                 self.anonymize_column(column)
 
         self.write_excel()
@@ -36,19 +28,31 @@ class Prototype:
         function_to_apply = self.default_anonymization_function
 
         # pick out function based on regex match
-        if re.match(".*(EMAIL|email|Email|E-Mail|E-mail).*", column):
+        if re.match(r".*\b(Kontaktperson|kontaktperson|Speichern\sunter|speichern"
+                    r"\sunter|Firma|firma|Nachname|nachname|Vorname|vorname)\b.*", column):
+            self.manipulate_data(column)
+        elif re.match(".*(ID|id|iD|Id).*", column):
+            obj_list = self.modifying_numbers(column.upper())
+            self.data[column] = pandas.Series(obj_list)
+        elif re.match(".*(EMAIL|email|Email|E-Mail|E-mail).*", column):
             function_to_apply = Prototype.anonymize_email
-        elif re.match(".*(Position|position|Stelle|stelle).*", column):
+            self.manipulate(function_to_apply, column)
+        elif re.match(r".*\b(Position|position|Stelle|stelle)\b.*", column):
             function_to_apply = Prototype.anonymize_position
+            self.manipulate(function_to_apply, column)
         elif re.match(".*(Telefon|telefon).*", column):
             if "Mobil" in column or "mobil" in column:
                 function_to_apply = Prototype.anonymize_mobile_phone
             else:
                 function_to_apply = Prototype.anonymize_phone
+            self.manipulate(function_to_apply, column)
         elif re.match(".*(Fax|fax).*", column):
             function_to_apply = Prototype.anonymize_phone
+            self.manipulate(function_to_apply, column)
+        else:
+            self.manipulate(function_to_apply, column)
 
-        # apply function to all values in column
+    def manipulate(self, function_to_apply, column):
         manipulated_list = []
         for index, value in self.data[column].items():
             if isinstance(value, str):
@@ -56,6 +60,10 @@ class Prototype:
             else:
                 manipulated_list.append("")
         self.data[str(column)] = pandas.Series(manipulated_list)
+
+    def manipulate_data(self, column):
+        obj_list = self.modifying_str(column)
+        self.data[column] = pandas.Series(obj_list)
 
     @staticmethod
     def read_xlsx(file_path: str):
@@ -148,11 +156,11 @@ class Prototype:
 
     @staticmethod
     def replace_str(data: str, special_chars: list, data_obj: str):
-        if data_obj == COLUMN_6 or data_obj == COLUMN_5:
+        if data_obj == "Vorname" or data_obj == "Nachname":
             changed_obj = data_obj
-        elif data_obj == COLUMN_2:
+        elif data_obj == "Speichern unter":
             changed_obj = "Nachname, Vorname"
-        elif data_obj == COLUMN_1:
+        elif data_obj == "Kontaktperson":
             changed_obj = "Vorname Nachname"
         else:
             changed_obj = data
@@ -160,31 +168,24 @@ class Prototype:
             changed_obj += single_special_char
         return changed_obj
 
-    def modifying_str(self, data: pandas.DataFrame):
-        contacts, save_name, company, surname, name = (
-            data[COLUMN_1], data[COLUMN_2], data[COLUMN_4], data[COLUMN_5], data[COLUMN_6])
+    def modifying_str(self, thing: str):
+        series = self.data[thing.capitalize()]
+        series_list = series.tolist()
 
-        all_contacts, all_save_name, all_company, all_surnames, all_names = (
-            contacts.tolist(), save_name.tolist(), company.tolist(), surname.tolist(), name.tolist())
-        all_objects = [all_contacts, all_save_name, all_company, all_surnames, all_names]
-
-        elements = [COLUMN_1, COLUMN_2, COLUMN_4, COLUMN_5, COLUMN_6]
-
-        for index in range(len(all_objects)):
-            special_chars, anon_list = [], []
-            for element in all_objects[index]:
-                special_chars = self.filter_special_chars(element, special_chars)
-                data_obj = self.replace_str(element, special_chars, elements[index])
-                anon_list.append(data_obj)
-            self.data[elements[index]] = pandas.Series(anon_list)
+        anon_list = []
+        for index in range(len(series_list)):
+            special_chars = []
+            special_chars = self.filter_special_chars(series_list[index], special_chars)
+            data_obj = self.replace_str(series_list[index], special_chars, thing.capitalize())
+            anon_list.append(data_obj)
+        return anon_list
 
     '''
         (int(every_id / 10) * 10) + 10      >   0-9  =  10;  10-19  = 20;
         (int(every_id / 100) * 100) + 100   >   0-99 = 100; 100-299 = 200;
     '''
-    @staticmethod
-    def modifying_numbers(data: pandas.Series):
-        id_list = data.tolist()
+    def modifying_numbers(self, thing: str):
+        id_list = self.data[thing.upper()].tolist()
         manipulated_list = []
         for every_id in id_list:
             if isinstance(every_id, int) and every_id >= 0:
@@ -205,7 +206,7 @@ class Prototype:
         so it overwrites the data
     '''
     def write_excel(self):
-        self.data.to_excel("anonymized_data.xlsx")
+        self.data.to_excel("anonymized_data_v2.xlsx")
 
 
 if __name__ == '__main__':
