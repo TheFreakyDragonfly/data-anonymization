@@ -22,9 +22,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
 const vscode = __importStar(require("vscode"));
+const python_shell_1 = require("python-shell");
+const path_1 = __importDefault(require("path"));
 // Default Working Azure Connection Details
 let default_config = {
     user: 'data-anon',
@@ -60,6 +65,7 @@ function activate(context) {
                     break;
             }
         }, undefined, context.subscriptions);
+        //call_python();
     });
     context.subscriptions.push(disposable);
 }
@@ -193,6 +199,11 @@ function connectAndQueryDB_plus_buildSelectionPage(panel, connection_object) {
 			`;
             panel.webview.html = constructed_page;
         });
+    });
+}
+function call_python() {
+    python_shell_1.PythonShell.run(path_1.default.join(__dirname, '..', '..', 'src', 'app.py'), undefined).then(messages => {
+        console.log('finished');
     });
 }
 function deactivate() { }

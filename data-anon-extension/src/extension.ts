@@ -1,5 +1,7 @@
 import * as vscode from 'vscode';
 import mssql = require('mssql');
+import {PythonShell} from 'python-shell';
+import path from 'path';
 
 // Default Working Azure Connection Details
 let default_config = {
@@ -51,6 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
 			undefined,
         	context.subscriptions
 		);
+		//call_python();
 	});
 
 	context.subscriptions.push(disposable);
@@ -196,6 +199,12 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any, connection_object
 
 			panel.webview.html = constructed_page;
 		});
+	});
+}
+
+function call_python() {
+	PythonShell.run(path.join(__dirname, '..', '..', 'src', 'app.py'), undefined).then(messages=>{
+		console.log('finished');
 	});
 }
 
