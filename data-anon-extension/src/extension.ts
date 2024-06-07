@@ -7,6 +7,7 @@ import path from 'path';
 /* Global Variables */
 var used_config : any | undefined;
 var used_cs: string | undefined;
+var style : any;
 
 /* Connection Details for Azure DB; for copy & pasting or testing */
 let default_config = {
@@ -28,8 +29,14 @@ export function activate(context: vscode.ExtensionContext) {
 			'Data Anonymisation Dialog',
 			vscode.ViewColumn.One,
 			{
-				enableScripts: true
+				enableScripts: true,
 			}
+		);
+
+		style = panel.webview.asWebviewUri(
+			vscode.Uri.joinPath(
+				context.extensionUri, 'src', 'css', 'webviews.css'
+			)
 		);
 
 		panel.webview.html = getDatabaseSelectionWebviewContent();
@@ -85,6 +92,7 @@ function getDatabaseSelectionWebviewContent() {
 			<head>
 				<meta charset="UTF-8">
 				<title>Test</title>
+				<link rel="stylesheet" href="${style}">
 				<script>
 					const vscode = acquireVsCodeApi();
 
@@ -209,6 +217,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 							list-style: none;
 						}
 					</style>
+					<link rel="stylesheet" href="${style}">
 					<script>
 						function message_go_back() {
 							const vscode = acquireVsCodeApi();
