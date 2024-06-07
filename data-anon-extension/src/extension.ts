@@ -1,9 +1,14 @@
+/* Imports */
 import * as vscode from 'vscode';
 import mssql = require('mssql');
 import {PythonShell} from 'python-shell';
 import path from 'path';
 
-// Default Working Azure Connection Details
+/* Global Variables */
+var used_config : any | undefined;
+var used_cs: string | undefined;
+
+/* Connection Details for Azure DB; for copy & pasting or testing */
 let default_config = {
 	user: 'data-anon',
 	password: 'Lantanio13891!',
@@ -15,6 +20,7 @@ let default_config = {
 };
 let default_cs = 'Server=tcp:sqls-dataanon-dev-001.database.windows.net,1433;Initial Catalog=Northwind;Persist Security Info=False;User ID=data-anon;Password=Lantanio13891!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;';
 
+/* Action performed when Command is activated */
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('data-anon-extension.runAnonymisationDialog', () => {
 		const panel = vscode.window.createWebviewPanel(
@@ -45,6 +51,11 @@ export function activate(context: vscode.ExtensionContext) {
 					case 'load_connection_form':
 						panel.webview.html = getDatabaseSelectionWebviewContent();
 						break;
+
+					case 'python':
+						write_order(message.text);
+						break;
+
 					case 'report':
 						console.log("[Report]: " + message.text);
 						break;
@@ -53,13 +64,15 @@ export function activate(context: vscode.ExtensionContext) {
 			undefined,
         	context.subscriptions
 		);
-		//call_python();
 	});
 
 	context.subscriptions.push(disposable);
 }
 
+/* Builds HTML for Database Connecting */
 function getDatabaseSelectionWebviewContent() {
+	used_cs = undefined;
+	used_config = undefined;
 	return `
 		<!DOCTYPE html>
 		<html lang="en">
@@ -114,7 +127,10 @@ function getDatabaseSelectionWebviewContent() {
 	`;
 }
 
+// TODO SWITCH FOR USING USED_CS and so on + DOCUMENTATION COMMENTS
 function connectAndQueryDB_plus_buildSelectionPage_cs(panel: any, given_cs: string) {
+	used_cs = given_cs;
+	used_config = undefined;
 	connectAndQueryDB_plus_buildSelectionPage(panel, given_cs);
 }
 
@@ -126,6 +142,8 @@ function connectAndQueryDB_plus_buildSelectionPage_config(panel: any, given_conf
 		server: split[2],
 		database: split[3],
 	};
+	used_cs = undefined;
+	used_config = config;
 	connectAndQueryDB_plus_buildSelectionPage(panel, config);
 }
 
@@ -168,6 +186,23 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any, connection_object
 								text: ''
 							});
 						}
+
+						function hand_over_to_python() {
+							const vscode = acquireVsCodeApi();
+
+							let tables = "";
+							let items = document.getElementsByTagName("li");
+							for(let i=0; i < items.length; i++) {
+								let item = items[i];
+								if(item.getElementsByTagName("input")[0].checked)
+									tables += item.getElementsByTagName("span")[0].innerHTML + "\\n";
+							}
+
+							vscode.postMessage({
+								command: 'python',
+								text: tables
+							});
+						}
 					</script>
 				</head>
 				<body>
@@ -184,14 +219,14 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any, connection_object
 			for(let i = 0; i < recordset_length; i++) {
 				constructed_page += "<li>";
 				constructed_page += '<input type="checkbox"> ';
-				constructed_page += recordset_by_itself[i].TABLE_NAME;
+				constructed_page += '<span>' + recordset_by_itself[i].TABLE_NAME + '</span>';
 				constructed_page += "</li>";
 			}
 
 			// SETUP End of Page
 			constructed_page += `
 					</ul>
-					<button>Run</button>
+					<button onclick="hand_over_to_python()">Run</button>
 					<button onclick="message_go_back()">Go Back</button>
 				</body>
 			</html>
@@ -202,10 +237,49 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any, connection_object
 	});
 }
 
+/* Function calling Python */
 function call_python() {
 	PythonShell.run(path.join(__dirname, '..', '..', 'src', 'app.py'), undefined).then(messages=>{
 		console.log('finished');
 	});
+}
+
+/* 	Function that writes details for an anonymization order to a file for python.
+	Draws Connection details from global vars.
+*/
+function write_order(tables: string) {
+	const fs = require('fs');
+
+	let path_string = path.join(__dirname, '..', '..', 'order');
+
+	let content = "[Anonymization Order]\n";
+	
+	let connection_section;
+	if(used_cs !== undefined) {
+		connection_section = "[Connection String]\n";
+		connection_section += used_cs + "\n";
+	}
+	else if(used_config !== undefined) {
+		connection_section = "[Config]\n";
+		connection_section += used_config.user + "\n";
+		connection_section += used_config.password + "\n";
+		connection_section += used_config.server + "\n";
+		connection_section += used_config.database + "\n";
+	}
+	else {
+		connection_section = "erroneus state";
+	}
+	content += connection_section;
+
+	content += "[TABLES]\n";
+	content += tables;
+
+	fs.writeFile(path_string, content, function(err : any) {
+		if(err) {
+			return console.log(err);
+		}
+		console.log("The file was saved!");
+	}); 
 }
 
 export function deactivate() {}
