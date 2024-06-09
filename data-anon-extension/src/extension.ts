@@ -133,32 +133,31 @@ function getDatabaseSelectionWebviewContent() {
 						show_trying_to_open();
 					}
 					function show_trying_to_open() {
-						document.body.innerHTML = "Loading ...";
+						document.body.innerHTML = '<p id="loading">Loading</p>' + '<div id="spinner" class="lds-dual-ring"></div>';
 					}
 				</script>
 			</head>
 			<body>
-				<h1>Select which Database to run Anonymization on</h1>
+				<h1 id="page_title">Connect to a database</h1>
 
-				<hr>
+				<p class="section_title" id="cs_title" onclick="message_default_cs()">Use Connection String</p>
+				<div id="cs_and_button">
+					<input type="text" class="input_general" id="connectionString" placeholder="Connection String"/>
+					<button class="open_button" id="cs_button" onclick="message_connectionstring()">Open</button>
+				</div>
 
-				<p onclick="message_default_cs()">Connection String</p>
-				<input type="text" id="connectionString"/> <button onclick="message_connectionstring()">Open</button>
+				<div id="vertical_line"></div>
 
-				<hr>
-				<p onclick="message_default_config()">SQL-Connection</p>
-				User <input id="user"/><br>
-				Password <input id="password"/><br>
-				Server <input id="server"/><br>
-				Database <input id="database"/><br>
-				<button onclick="message_config()">Open</button>
-				
+				<p id="hint">When connecting you will get a choice on which tables to anonymize.</p>
 
-				<hr>
-
-				<p>
-					You will be given the choice over which tables to anonymize later.
-				</p>
+				<p class="section_title" id="config_title" onclick="message_default_config()">Use SQL-Connection</p>
+				<div id="config_inputs_div">
+					<input class="input_general" id="user" placeholder="User"/><br>
+					<input class="input_general" id="password" placeholder="Password"/><br>
+					<input class="input_general" id="server" placeholder="Server"/><br>
+					<input class="input_general" id="database" placeholder="Database"/><br>
+				</div>
+				<button class="open_button" id="config_button" onclick="message_config()">Open</button>
 			</body>
 		</html>
 	`;
@@ -219,6 +218,11 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 					</style>
 					<link rel="stylesheet" href="${style}">
 					<script>
+						var all_tables = null;
+						var active_index = -1;
+						var all_tables_status = null;
+						var checkbox = null;
+
 						function message_go_back() {
 							const vscode = acquireVsCodeApi();
 
@@ -232,11 +236,10 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 							const vscode = acquireVsCodeApi();
 
 							let tables = "";
-							let items = document.getElementsByTagName("li");
-							for(let i=0; i < items.length; i++) {
-								let item = items[i];
-								if(item.getElementsByTagName("input")[0].checked)
-									tables += item.getElementsByTagName("span")[0].innerHTML + "\\n";
+							for(let i = 0; i < all_tables.length; i++) {
+								if(all_tables_status[i] == true) {
+									tables += all_tables[i].innerHTML + "\\n";
+								}
 							}
 
 							vscode.postMessage({
@@ -244,31 +247,69 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 								text: tables
 							});
 						}
+
+						function select(element) {
+							if(element.innerHTML !== all_tables[active_index].innerHTML) {
+								for(let i = 0; i < all_tables.length; i++) {
+									if(all_tables[i] == element) active_index = i;
+									all_tables[i].classList.remove("selected_table");
+								}
+								element.classList.add("selected_table");
+
+								// Load Content for selection
+								checkbox.checked = all_tables_status[active_index];
+							}
+						}
+
+						function next_entry() {
+							if(active_index !== -1) {
+								select(
+									all_tables[(active_index + 1) % all_tables.length]
+								);
+							}
+						}
+
+						function checkbox_change() {
+							if(checkbox.checked == true) {
+								all_tables_status[active_index] = true;
+							}
+							else {
+								all_tables_status[active_index] = false;
+							}
+						}
 					</script>
 				</head>
-				<body>
-					<h1>Select which Tables to run Anonymization on</h1>
-	
-					<hr>
-	
-					<ul>
+				<body>	
+					<div id="list_tables">
 			`;
 
 			// ADD Tables to Selection page
 			let recordset_by_itself = recordset.recordset;
 			let recordset_length = recordset_by_itself.length;
 			for(let i = 0; i < recordset_length; i++) {
-				constructed_page += "<li>";
-				constructed_page += '<input type="checkbox"> ';
-				constructed_page += '<span>' + recordset_by_itself[i].TABLE_NAME + '</span>';
-				constructed_page += "</li>";
+				constructed_page += '<p class="item_table" onclick="select(this)">';
+				constructed_page += recordset_by_itself[i].TABLE_NAME;
+				constructed_page += "</p>";
 			}
 
 			// SETUP End of Page
 			constructed_page += `
-					</ul>
-					<button onclick="hand_over_to_python()">Run</button>
-					<button onclick="message_go_back()">Go Back</button>
+					</div>
+					<div id="checkbox_and_label">
+						<input type="checkbox" id="checkbox_anonymize" onclick="checkbox_change(this)" />
+						<label for="checkbox_anonymize">Anonymize</label>
+					</div>
+					<div id="preview_div"></div>
+					<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
+					<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>
+					<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>
+					<script>
+						all_tables = document.getElementsByClassName("item_table");
+						active_index = 0;
+						all_tables[active_index].classList.add("selected_table");
+						all_tables_status = Array(all_tables.length).fill(false);
+						checkbox = document.getElementById("checkbox_anonymize");
+					</script>
 				</body>
 			</html>
 			`;
