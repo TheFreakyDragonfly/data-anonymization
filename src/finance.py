@@ -112,3 +112,57 @@ class Finance:
         url = 'https://api.namefake.com/'
         json_obj = requests.get(url).json()
         return json_obj['name']
+
+    @staticmethod
+    def anonymize_transaction_number(data):
+        length, transaction_num = len(str(data)), ""
+        for _ in range(length):
+            transaction_num += choices('1234567890')[0]
+        return transaction_num
+
+    @staticmethod
+    def get_random_company():
+        url = 'https://api.namefake.com/'
+        json_obj = requests.get(url).json()
+        #print("Company")
+        return json_obj['company']
+
+    @staticmethod
+    def anonymize_transaction_recipient(data):
+        allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜäöüß- "
+        company_identifier = [
+            "GmbH & Co. KG",
+            "GmbH & Co. OHG",
+            "GmbH & Co. KGaA",
+            "Group",
+            "GmbH",
+            "Söhne",
+            "KGaA",
+            "OHG",
+            "e.K.",
+            "eG",
+            "KG",
+            "Kommanditgesellschaft",
+            "SE",
+            "KGaA",
+            "KGaA & Co.",
+            "LLP",
+            "PLC",
+            "Co.",
+            "Corp.",
+            "Ltda.",
+            "Pty. Ltd.",
+            "SARL",
+            "SAS",
+            "SA",
+            "BV",
+            "NV"
+        ]
+        for char in str(data):
+            if char not in allowed_chars:
+                Finance.get_random_company()
+        for element in range(len(company_identifier)):
+            if company_identifier[element] in data:
+                Finance.get_random_company()
+        name = Finance.anonymize_account_owner()
+        return name
