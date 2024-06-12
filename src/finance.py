@@ -109,11 +109,10 @@ class Finance:
 
     @staticmethod
     def anonymize_account_owner(forward):
-        fake_obj = Faker()
         if forward:
-            return fake_obj.first_name() + " " + fake_obj.last_name()
+            return Faker().first_name() + " " + Faker().last_name()
         else:
-            name_obj = fake_obj.first_name() + ", " + fake_obj.last_name()
+            name_obj = Faker().first_name() + ", " + Faker().last_name()
             return name_obj
 
     @staticmethod
@@ -136,8 +135,7 @@ class Finance:
 
     @staticmethod
     def __get_random_company():
-        fake_obj = Faker()
-        return fake_obj.company() + " " + fake_obj.company_suffix()
+        return Faker().company() + " " + Faker().company_suffix()
 
     @staticmethod
     def anonymize_transaction_recipient(data):
