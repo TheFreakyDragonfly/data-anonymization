@@ -117,7 +117,12 @@ class Finance:
             return name_obj
 
     @staticmethod
-    def anonymize_transaction_number(data):
+    def anonymize_by_replacing(data):
+        """
+            Transaktionsnummern,
+            Kreditkartennummer,
+            Kundennummer
+        """
         length, transaction_num = len(str(data)), ""
         valid_chars, valid_nums = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '1234567890'
         actual_data = str(data)
