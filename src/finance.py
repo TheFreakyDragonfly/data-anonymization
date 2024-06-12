@@ -1,5 +1,5 @@
 from random import choices
-import requests
+from faker import Faker
 
 
 class Finance:
@@ -91,7 +91,7 @@ class Finance:
         structure_elements, positions, found_element = 0, [], ""
 
         code = data[:2]
-        start, end = iban_structures.get(code, (0, 4))
+        start, end = iban_structures.get(code, (0, 5))
 
         for element in range(end):
             if data[element] == ' ' or data[element] == '-':
@@ -108,24 +108,31 @@ class Finance:
         return final_iban
 
     @staticmethod
-    def anonymize_account_owner():
-        url = 'https://api.namefake.com/'
-        json_obj = requests.get(url).json()
-        return json_obj['name']
+    def anonymize_account_owner(forward):
+        fake_obj = Faker()
+        if forward:
+            return fake_obj.first_name() + " " + fake_obj.last_name()
+        else:
+            name_obj = fake_obj.first_name() + ", " + fake_obj.last_name()
+            return name_obj
 
     @staticmethod
     def anonymize_transaction_number(data):
         length, transaction_num = len(str(data)), ""
-        for _ in range(length):
-            transaction_num += choices('1234567890')[0]
+        valid_chars, valid_nums = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '1234567890'
+        actual_data = str(data)
+        for index in range(length):
+            if actual_data[index] in valid_chars:
+                transaction_num += choices(valid_chars)[0]
+            else:
+                transaction_num += choices(valid_nums)[0]
+
         return transaction_num
 
     @staticmethod
-    def get_random_company():
-        url = 'https://api.namefake.com/'
-        json_obj = requests.get(url).json()
-        #print("Company")
-        return json_obj['company']
+    def __get_random_company():
+        fake_obj = Faker()
+        return fake_obj.company() + " " + fake_obj.company_suffix()
 
     @staticmethod
     def anonymize_transaction_recipient(data):
@@ -137,6 +144,7 @@ class Finance:
             "Group",
             "GmbH",
             "Söhne",
+            "Sons",
             "KGaA",
             "OHG",
             "e.K.",
@@ -149,6 +157,7 @@ class Finance:
             "LLP",
             "PLC",
             "Co.",
+            "Co",
             "Corp.",
             "Ltda.",
             "Pty. Ltd.",
@@ -160,9 +169,12 @@ class Finance:
         ]
         for char in str(data):
             if char not in allowed_chars:
-                Finance.get_random_company()
+                Finance.__get_random_company()
         for element in range(len(company_identifier)):
             if company_identifier[element] in data:
-                Finance.get_random_company()
-        name = Finance.anonymize_account_owner()
+                Finance.__get_random_company()
+        if data.__contains__(','):
+            name = Finance.anonymize_account_owner(False)
+        else:
+            name = Finance.anonymize_account_owner(True)
         return name
