@@ -6,19 +6,23 @@ from re import match
 def anonymizing_bank_data(data):
     if match('[A-Z]{2}\\d{2}\\s?([A-Z0-9]+\\s?)+', str(data)):
         anonymized = Finance.anonymize_iban(data)
-    elif match('[A-Z][a-zäöüß]+\\s?[A-Z][a-zäöüß]+', str(data)):
-        anonymized = Finance.anonymize_account_owner(True)
-    elif match('[A-Z][a-zäöüß]+,\\s?[A-Z][a-zäöüß]+', str(data)):
-        anonymized = Finance.anonymize_account_owner(False)
+    elif match(".*,.*", str(data).rstrip()):
+        anonymized = Finance.anonymize_name(False, data.rstrip())
+    elif match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(data).rstrip()):
+        anonymized = Finance.anonymize_name(True, data.rstrip())
     elif match('[A-Z0-9]+', str(data)):
         anonymized = Finance.anonymize_by_replacing(data)
     elif match('', str(data)):  # HOW TO IDENTIFY COMPANIES
-        anonymized = Finance.anonymize_transaction_recipient(data)
+        #anonymized = Finance.anonymize_transaction_recipient(data)
+        raise NotImplementedError("No Regex provided")
 
 
 def anonymizing_personal(data):
     if match('\\d{2}.\\d{2}.\\d{4}', str(data)) or match('\\d{4}.\\d{2}.\\d{2}', str(data)):
         anonymized = Personal.anonymizing_date(data)
+    elif match('', str(data)):
+        #anonymized = Personal.anonymize_city()
+        raise NotImplementedError("No Regex provided")
 
 
 if __name__ == '__main__':
@@ -30,8 +34,12 @@ if __name__ == '__main__':
     anonymizing_bank_data(35123)
     anonymizing_bank_data('D6483')
 
-    anonymizing_bank_data("Hans Werner")
-    anonymizing_bank_data("Jauch, Günther")
+    anonymizing_bank_data("Hans Werner Baum")
+    anonymizing_bank_data("Günther-Jauch-Der-Top-G")
+    anonymizing_bank_data("Hans-Werner Busch")
+    anonymizing_bank_data("Hans-Werner Busch ")
+    anonymizing_bank_data("Jauch-Günther Hans, Dertop G")
+    anonymizing_bank_data("Hans Werner-Busch, Bill Cliton-Der-Juan")
 
     anonymizing_personal("10.03.2001")
     anonymizing_personal("11-04-2000")
