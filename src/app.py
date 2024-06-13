@@ -3,6 +3,7 @@ from operator import is_not
 import pandas
 import re
 import requests
+from faker import Faker
 
 
 class Prototype:
@@ -103,7 +104,7 @@ class Prototype:
             special_characters = Prototype.filter_special_chars(subsection, [])
             anonymized_email_construction += "".join(special_characters)
             anonymized_email_construction += "prefix"
-            if i != subsections_in_first_section_len-1:
+            if i != subsections_in_first_section_len - 1:
                 anonymized_email_construction += "."
 
         anonymized_email_construction += "@"
@@ -185,6 +186,7 @@ class Prototype:
         (int(every_id / 10) * 10) + 10      >   0-9  =  10;  10-19  = 20;
         (int(every_id / 100) * 100) + 100   >   0-99 = 100; 100-299 = 200;
     '''
+
     def modifying_numbers(self, thing: str):
         id_list = self.data[thing.upper()].tolist()
         manipulated_list = []
@@ -199,6 +201,7 @@ class Prototype:
     """
         Only Use for debugging
     """
+
     def print_data(self, string):
         print(f"{string} Data was:\n", self.data)
 
@@ -206,6 +209,7 @@ class Prototype:
         Change name and path to original file, 
         so it overwrites the data
     '''
+
     def write_excel(self):
         self.data.to_excel("anonymized_data_v2.xlsx")
 
@@ -229,6 +233,7 @@ class FakePerson:
     Attribute data_loaded indicates if data was loaded successfully on creation.
     load_data() allows user to attempt loading data again.
     """
+
     def __init__(self):
         # attempt to load data
         self.json = None
@@ -288,6 +293,16 @@ class FakePerson:
         except ConnectionError:
             self.data_loaded = False
             return False
+
+
+class FakeGenerator(Faker):
+    """
+    Custom extension of Faker class.
+    Provides more options for getting data by preprocessing data provided by Faker.
+    """
+    def bank_account_number(self):
+        # fake account number extracted from generated iban
+        return self.iban()[12:22]
 
 
 if __name__ == '__main__':
