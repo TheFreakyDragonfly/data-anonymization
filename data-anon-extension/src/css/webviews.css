@@ -1,0 +1,257 @@
+body {
+    user-select: none;
+}
+
+#page_title {
+    position: absolute;
+    width: 80vw;
+    text-align: center;
+    left: 10vw;
+    font-size: 5vh;
+}
+
+.section_title {
+    position: absolute;
+    top: 20vh;
+    width: fit-content;
+    height: 4vh;
+    text-align: center;
+    font-size: 3vh;
+}
+
+#cs_title {
+    right: 56vw;
+}
+
+#config_title {
+    left: 56vw;
+}
+
+.input_general {
+    all: unset;
+    position: absolute;
+    color: #000000;
+    background: #ffffff;
+    width: 15vw;
+    height: 5vh;
+    padding: 0.3vh 0.8vw 0.3vh 0.8vw;
+    border-radius: 0.35vw;
+    font-size: 1.8vh;
+}
+
+.open_button {
+    all: unset;
+    color: #ffffff;
+    background: #000000;
+    width: 5vw;
+    height: 5vh;
+    border-radius: 0.35vw;
+    padding: 0.3vh 0.1vw 0.3vh 0.1vw;
+    text-align: center;
+    font-size: 1.8vh;
+    cursor: pointer;
+}
+
+#connectionString {
+    width: 30vw;
+    right: calc(5.2vw + 0.9vw);
+}
+
+#cs_button {
+    right: 0vw;
+}
+
+#cs_and_button {
+    position: absolute;
+    right: 56vw;
+    top: 32vh;
+}
+
+#config_inputs_div {
+    position: absolute;
+    left: 56vw;
+    top: 32vh;
+}
+
+#user {
+    left: 0vw;
+    top: 9vh;
+}
+
+#password {
+    left: 18vw;
+    top: 9vh;
+}
+
+#server {
+    left: 0vw;
+    top: 0vh;
+}
+
+#database {
+    left: 18vw;
+    top: 0vh;
+}
+
+#config_button {
+    position: absolute;
+    left: 71vw;
+    top: 49vh;
+}
+
+#vertical_line {
+    position: absolute;
+    border-left: 0.2vw solid gray;
+    height: 60vh;
+    width: 0vw;
+    left: 49.9vw;
+    top: 20vh;
+    border-radius: 30vh;
+}
+
+#hint {
+    all:unset;
+    position: absolute;
+    width: 30vw;
+    height: 10vh;
+    left: 35vw;
+    text-align: center;
+    font-size: 2vh;
+    top: 90vh;
+}
+
+#list_tables {
+    position: absolute;
+    left: 8vw;
+    top: 10vh;
+    width: 84vw;
+    height: auto;
+}
+
+#list_tables p {
+    all: unset;
+    float: left;
+    box-sizing: border-box;
+    width: 12vw;
+    height: 5vh;
+    padding: 0.5vh 0.4vw 0.5vh 0.4vw;
+    background-color: #dddddd;
+    text-align: center;
+    font-size: 1.5vh;
+    border: 0.2vh solid black;
+    border-radius: 1vh;
+    color: #000000;
+    user-select: none;
+    cursor: pointer;
+}
+
+#list_tables p:hover {
+    background-color: white;
+}
+
+#list_tables p.selected_table {
+    background-color: white;
+}
+
+#preview_div {
+    position: absolute;
+    left: 8vw;
+    top: 55vh;
+    width: 84vw;
+    height: 35vh;
+    background-color: aqua;
+}
+
+#checkbox_anonymize {
+    width: 1.2vw;
+    height: 2.4vh;
+    cursor: pointer;
+}
+
+#checkbox_and_label {
+    position: absolute;
+    left: 8vw;
+    top: 40vh;
+    font-size: 2.5vh;
+    user-select: none;
+    cursor: pointer;
+}
+
+.nav_button_round {
+    position: absolute;
+    width: 2vw;
+    height: 2vw;
+    background-color: #dddddd;
+    text-align: center;
+    line-height: 2vw;
+    border-radius: calc(2vw / 2);
+    font-size: 2vh;
+    color: #000000;
+    user-select: none;
+    cursor: pointer;
+}
+
+#back_button {
+    left: 90vw;
+    top: 5vh;
+}
+
+#run_button {
+    width: 3vw;
+    left: 86vw;
+    top: 5vh;
+}
+
+#next_button {
+    left: 83vw;
+    top: 5vh;
+}
+
+/* Loading Spinner */
+#loading {
+    position: absolute;
+    left: 45vw;
+    top: 30vh;
+    width: 10vw;
+    text-align: center;
+    font-size: 5vh;
+    user-select: none;
+}
+
+#spinner {
+    position: absolute;
+    left: calc(50vw - 6vh);
+    top: 44vh;
+    user-select: none;
+}
+
+/* online source */
+
+.lds-dual-ring,
+.lds-dual-ring:after {
+  box-sizing: border-box;
+}
+.lds-dual-ring {
+  display: inline-block;
+  width: 12vh;
+  height: 12vh;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 9.6vh;
+  height: 9.6vh;
+  margin: 1.2vh;
+  border-radius: 50%;
+  border: 0.96vh solid currentColor;
+  border-color: currentColor transparent currentColor transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
