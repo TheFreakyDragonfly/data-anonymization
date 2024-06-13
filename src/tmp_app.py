@@ -3,6 +3,7 @@ from finance import Finance
 from personal import Personal
 from re import match
 from translate import Translator
+from geotext import GeoText
 
 
 def anonymizing_bank_data(data):
@@ -25,10 +26,10 @@ def anonymizing_personal(data):
         anonymized = Personal.anonymizing_date(data)
     elif str(Translator(to_lang="en").translate(data)) in all_countries:
         anonymized = Personal.anonymize_country(data)
-    elif match("", str(data)):
+    elif len(GeoText(str(data)).cities) > 0:
         anonymized = Personal.anonymize_city(data)
-        raise NotImplementedError("No Regex provided")
-
+    else:
+        print("Uhhh...")
 
 if __name__ == '__main__':
 
@@ -56,4 +57,5 @@ if __name__ == '__main__':
     anonymizing_personal("09/16/2006")
 
     anonymizing_personal("Afghanistan")
-    #anonymizing_personal("Berlin")
+    anonymizing_personal("Berlin")
+    anonymizing_personal("Berlina")
