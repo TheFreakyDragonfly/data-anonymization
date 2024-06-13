@@ -23,8 +23,27 @@ class Personal:
             random_date = Faker().date('%d.%m.%Y')
 
     @staticmethod
+    def anonymize_city():
+        """
+            City,
+            Delivery City,
+            Village etc.
+        """
+        raise NotImplementedError("Structure not implemented...")
+        return Faker().city()
+
+    @staticmethod
+    def anonymize_country():
+        """
+            Country
+        """
+        raise NotImplementedError("Structure not implemented...")
+        return Faker().country()
+
+    @staticmethod
     def anonymize_something():
         """
             Social Security Number
         """
         raise NotImplementedError("Not implemented yet...")
+
