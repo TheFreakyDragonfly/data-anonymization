@@ -2,6 +2,7 @@ from functools import partial
 from operator import is_not
 import pandas
 import re
+import requests
 
 
 class Prototype:
@@ -207,6 +208,86 @@ class Prototype:
     '''
     def write_excel(self):
         self.data.to_excel("anonymized_data_v2.xlsx")
+
+
+def only_roman_letters(value):
+    """
+    Function examining if a bunch of letters contain anything that isn't roman numerals.
+    :param value: The value to check for.
+    :return: Boolean value saying if only roman numerals were found.
+    """
+    valid_numerals = ['M', 'D', 'C', 'L', 'X', 'V', 'I']
+    for letter in value:
+        if letter not in valid_numerals:
+            return False
+    return True
+
+
+class FakePerson:
+    """
+    Class containing either fake data or unset data.
+    Attribute data_loaded indicates if data was loaded successfully on creation.
+    load_data() allows user to attempt loading data again.
+    """
+    def __init__(self):
+        # attempt to load data
+        self.json = None
+        self.name = None
+        self.firstname = None
+        self.lastname = None
+        self.address = None
+        self.date = None
+        self.email = None
+        self.username = None
+        self.password = None
+        self.ipv4 = None
+        self.macaddress = None
+        self.company = None
+        self.uuid = None
+        self.data_loaded = False
+        self.load_data()
+
+    def load_data(self):
+        """
+        Attempts to load data from API into object.
+        :return: Boolean saying if loading of data was successful
+        """
+        try:
+            # Get data from API
+            response = requests.get("https://api.namefake.com")
+
+            # Get Json from Response
+            json = response.json()
+
+            # Set all attributes including flag for valid filling of data
+            self.json = json
+            self.name = json['name']
+
+            # isolate first, lastname
+            name_parts = self.name.split(' ')
+            if len(name_parts) > 2 and not only_roman_letters(name_parts[2]):
+                self.firstname = name_parts[1]
+                self.lastname = name_parts[2]
+            else:
+                self.firstname = name_parts[0]
+                self.lastname = name_parts[1]
+
+            # continue setting other attributes
+            self.address = json['address']
+            self.date = json['birth_data']
+            self.email = json['email_u'] + '@' + json['email_d']
+            self.username = json['username']
+            self.password = json['password']
+            self.ipv4 = json['ipv4']
+            self.macaddress = json['macaddress']
+            self.company = json['company']
+            self.uuid = json['uuid']
+
+            self.data_loaded = True
+            return True
+        except ConnectionError:
+            self.data_loaded = False
+            return False
 
 
 if __name__ == '__main__':
