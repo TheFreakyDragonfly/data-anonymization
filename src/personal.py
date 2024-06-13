@@ -23,22 +23,42 @@ class Personal:
             random_date = Faker().date('%d.%m.%Y')
 
     @staticmethod
-    def anonymize_city():
+    def anonymize_city(data):
         """
             City,
             Delivery City,
             Village etc.
         """
-        raise NotImplementedError("Structure not implemented...")
-        return Faker().city()
+        special_chars_list, special_chars_count = [], 0
+        for index in range(len(data)):
+            if data[index] == " " or data[index] == "-":
+                special_chars_count += 1
+                special_chars_list.append(data[index])
+        if special_chars_count == 0:
+            return Faker().city()
+        else:
+            city_obj = ""
+            for index in range(special_chars_count):
+                city_obj += str(Faker().city() + special_chars_list[index])
+            return city_obj
 
     @staticmethod
-    def anonymize_country():
+    def anonymize_country(data):
         """
             Country
         """
-        raise NotImplementedError("Structure not implemented...")
-        return Faker().country()
+        special_chars_list, special_chars_count = [], 0
+        for index in range(len(data)):
+            if data[index] == " " or data[index] == "-":
+                special_chars_count += 1
+                special_chars_list.append(data[index])
+        if special_chars_count == 0:
+            return Faker().country()
+        else:
+            city_obj = ""
+            for index in range(special_chars_count):
+                city_obj += str(Faker().country() + special_chars_list[index])
+            return city_obj
 
     @staticmethod
     def anonymize_something():
@@ -46,4 +66,3 @@ class Personal:
             Social Security Number
         """
         raise NotImplementedError("Not implemented yet...")
-
