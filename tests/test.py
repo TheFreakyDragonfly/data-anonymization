@@ -1,6 +1,7 @@
 from src.app import Prototype
 from unittest import TestCase
 from pandas import Series, DataFrame
+from src.app import FakePerson
 
 
 class Test(TestCase):
@@ -97,3 +98,14 @@ class Test(TestCase):
                 '726 7 321 321 4321'
             )
         )
+
+
+class TestFakeName(TestCase):
+    def testCreationAndData(self):
+        print("Anwendungsbeispiel!")
+        fake_person_dataset = FakePerson()
+        print(fake_person_dataset.json)
+        print(fake_person_dataset.name)
+        print(fake_person_dataset.firstname)
+        print(fake_person_dataset.lastname)
+        print(fake_person_dataset.email)
