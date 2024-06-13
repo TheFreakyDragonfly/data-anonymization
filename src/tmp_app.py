@@ -2,6 +2,7 @@ from pycountry import countries
 from finance import Finance
 from personal import Personal
 from re import match
+from translate import Translator
 
 
 def anonymizing_bank_data(data):
@@ -22,9 +23,8 @@ def anonymizing_personal(data):
     all_countries = [country.name for country in countries]
     if match('\\d{2}.\\d{2}.\\d{4}', str(data)) or match('\\d{4}.\\d{2}.\\d{2}', str(data)):
         anonymized = Personal.anonymizing_date(data)
-    elif str(data) in all_countries:
+    elif str(Translator(to_lang="en").translate(data)) in all_countries:
         anonymized = Personal.anonymize_country(data)
-        raise NotImplementedError("Need Translation to English from every language...")
     elif match("", str(data)):
         anonymized = Personal.anonymize_city(data)
         raise NotImplementedError("No Regex provided")
