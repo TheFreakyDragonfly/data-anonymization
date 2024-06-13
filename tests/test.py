@@ -1,7 +1,6 @@
-from src.app import Prototype
+from src.app import Prototype, FakePerson, FakeGenerator
 from unittest import TestCase
 from pandas import Series, DataFrame
-from src.app import FakePerson
 
 
 class Test(TestCase):
@@ -102,10 +101,15 @@ class Test(TestCase):
 
 class TestFakeName(TestCase):
     def testCreationAndData(self):
-        print("Anwendungsbeispiel!")
         fake_person_dataset = FakePerson()
         print(fake_person_dataset.json)
         print(fake_person_dataset.name)
         print(fake_person_dataset.firstname)
         print(fake_person_dataset.lastname)
         print(fake_person_dataset.email)
+
+
+class TestFakeGenerator(TestCase):
+    def testBasic(self):
+        fake = FakeGenerator()
+        print(fake.bank_account_number())
