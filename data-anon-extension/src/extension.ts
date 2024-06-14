@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import mssql = require('mssql');
 import {PythonShell} from 'python-shell';
 import path from 'path';
+import {exec} from 'child_process';
 
 /* Global Variables */
 var used_config : any | undefined;
@@ -57,6 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 						used_config = config_string_to_config(message.text);
 						
 						connectAndQueryDB_plus_buildSelectionPage(panel);
+						//write_order("t1");
 						break;
 
 					case 'load_connection_form':
@@ -65,7 +67,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 					case 'python':
 						write_order(message.text);
-						//call_python();
 						panel.webview.html = getDatabaseSelectionWebviewContent();
 						break;
 
@@ -321,8 +322,12 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 
 /* Function calling Python */
 function call_python() {
-	PythonShell.run(path.join(__dirname, '..', '..', 'src', 'app.py'), undefined).then(messages=>{
-		console.log('finished');
+	let options = {
+		args: [path.join(__dirname, 'output')]
+	};
+	console.log('starting python');
+	PythonShell.run(path.join(__dirname, '..', '..', 'src', 'order_taker.py'), options).then(messages=>{
+		console.log('finished python');
 	});
 }
 
@@ -363,6 +368,7 @@ function write_order(tables: string) {
 			return console.log(err);
 		}
 		console.log("The file was saved!");
+		call_python();
 	}); 
 }
 
