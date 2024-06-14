@@ -1,6 +1,5 @@
 from random import choices
 from faker import Faker
-from personal import Personal
 
 
 class Finance:
@@ -113,7 +112,8 @@ class Finance:
         """
             Transaction Number,
             Credit Card Number,
-            Customer Number etc.
+            Customer Number,
+            Employee Number
         """
         length, transaction_num = len(str(data)), ""
         valid_chars, valid_nums = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '1234567890'
@@ -127,17 +127,12 @@ class Finance:
         return transaction_num
 
     @staticmethod
-    def __get_random_company():
-        return Faker().company() + " " + Faker().company_suffix()
-
-    @staticmethod
-    def anonymize_transaction_recipient(data):
+    def anonymize_company(data):
         """
             Supplier,
             Company,
             Shipping company etc.
         """
-        allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜäöüß- "
         company_identifier = [
             "GmbH & Co. KG",
             "GmbH & Co. OHG",
@@ -168,14 +163,7 @@ class Finance:
             "BV",
             "NV"
         ]
-        for char in str(data):
-            if char not in allowed_chars:
-                Finance.__get_random_company()
         for element in range(len(company_identifier)):
             if company_identifier[element] in data:
-                Finance.__get_random_company()
-        if data.__contains__(','):
-            name = Personal.anonymize_name(False, data)
-        else:
-            name = Personal.anonymize_name(True, data)
-        return name
+                anonymized = Faker().company()
+                return anonymized
