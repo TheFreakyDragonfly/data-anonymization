@@ -1,4 +1,4 @@
-from src.app import Prototype, FakePerson, FakeGenerator
+from src.app import Prototype, FakePerson, FakeGenerator, LLMInteractor
 from unittest import TestCase
 from pandas import Series, DataFrame
 
@@ -113,3 +113,11 @@ class TestFakeGenerator(TestCase):
     def testBasic(self):
         fake = FakeGenerator()
         print(fake.bank_account_number())
+        print(fake.date_of_birth())
+
+
+class TestLLMInteractor(TestCase):
+    def testBasic(self):
+        inter = LLMInteractor()
+        print(inter.ask_about_column_name('name'))
+        print(inter.ask_about_column_name('favorite color'))
