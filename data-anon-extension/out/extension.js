@@ -64,8 +64,8 @@ function activate(context) {
                 case 'open_db_config':
                     console.log('open db config:  ' + message.text);
                     used_config = config_string_to_config(message.text);
-                    //connectAndQueryDB_plus_buildSelectionPage(panel);
-                    write_order("t1");
+                    connectAndQueryDB_plus_buildSelectionPage(panel);
+                    //write_order("t1");
                     break;
                 case 'load_connection_form':
                     panel.webview.html = getDatabaseSelectionWebviewContent();
