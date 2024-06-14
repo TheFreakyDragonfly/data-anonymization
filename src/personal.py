@@ -145,3 +145,7 @@ class Personal:
             Age,
         """
         return Finance.anonymize_by_replacing(data)
+
+    @staticmethod
+    def anonymize_job():
+        return Faker().job()
