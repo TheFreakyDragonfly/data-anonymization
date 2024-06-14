@@ -1,5 +1,6 @@
 from random import choices
 from faker import Faker
+from personal import Personal
 
 
 class Finance:
@@ -108,57 +109,11 @@ class Finance:
         return final_iban
 
     @staticmethod
-    def __find_special_chars(data, special_chars, special_list):
-        for index in range(len(data)):
-            if data[index] == " " or data[index] == "-":
-                special_chars += 1
-                special_list.append(data[index])
-        return special_chars, special_list
-
-    @staticmethod
-    def anonymize_name(forward, data):
-        """
-            Account Owner
-            Name
-            Contact Person
-            Liefername etc.
-        """
-        special_chars, special_list = 0, []
-        special_surname, special_surname_chars, special_name,special_name_chars = [], 0, [], 0
-        if forward:
-            special_chars, special_list = Finance.__find_special_chars(data, special_chars, special_list)
-        else:
-            last_name, first_name = str(data).split(",")
-            special_surname_chars, special_surname = Finance.__find_special_chars(last_name, special_surname_chars, special_surname)
-            special_name_chars, special_name = Finance.__find_special_chars(first_name, special_name_chars, special_name)
-
-        name_obj = ""
-        if forward:
-            for index in range(special_chars):
-                name_obj += str(Faker().first_name() + special_list[index])
-            return name_obj + str(Faker().last_name())
-        else:
-            if len(special_surname) == 0:
-                name_obj += str(Faker().last_name())
-            else:
-                for index in range(special_surname_chars):
-                    name_obj += str(Faker().last_name() + special_surname[index])
-                name_obj += str(Faker().last_name())
-
-            name_obj += ","
-            if len(special_name) == 0:
-                name_obj += str(Faker().first_name())
-            else:
-                for index in range(special_name_chars):
-                    name_obj += str(special_name[index] + Faker().first_name())
-            return name_obj
-
-    @staticmethod
     def anonymize_by_replacing(data):
         """
-            Transaktionsnummern,
-            Kreditkartennummer,
-            Kundennummer etc.
+            Transaction Number,
+            Credit Card Number,
+            Customer Number etc.
         """
         length, transaction_num = len(str(data)), ""
         valid_chars, valid_nums = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '1234567890'
@@ -178,9 +133,9 @@ class Finance:
     @staticmethod
     def anonymize_transaction_recipient(data):
         """
-            Lieferant,
-            Firma,
-            Versandfirma etc.
+            Supplier,
+            Company,
+            Shipping company etc.
         """
         allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜäöüß- "
         company_identifier = [
@@ -220,7 +175,7 @@ class Finance:
             if company_identifier[element] in data:
                 Finance.__get_random_company()
         if data.__contains__(','):
-            name = Finance.anonymize_name(False)
+            name = Personal.anonymize_name(False, data)
         else:
-            name = Finance.anonymize_name(True)
+            name = Personal.anonymize_name(True, data)
         return name
