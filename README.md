@@ -38,3 +38,14 @@ Other required dependencies:
 	+ Column names
 	+ Column contents
 + Utilise LLM to provide flexibility
+
+## How does it work?
+1. The user launches the VSCode Extension
+2. The user provides Connection details
+3. The user selects tables from the menu
+4. An order.order file is created
+5. Python is launched
+6. order_receiver reads the order.order file
+7. order_receiver hands over information to anonymizer
+8. anonymizer assigns each column in each table a function to anonymize it
+9. CSVs with non-anonymized data and anonymized data are written to top level of file structure
