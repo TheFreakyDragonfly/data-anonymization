@@ -21,15 +21,13 @@ The folder **data-anon-extension** contains all files related to the VSCode exte
 + src/css/: contains css for webviews
 
 **Other files** in this repository include:
-+ .gitignore: For everyone in the project
 + README.md: The readme file
 + overview.png: Rough overview of interaction between components in project
 
 ## What does the project depend on?
 Some dependencies are installed with the project.
 Other required dependencies:
-+ virtualenv (python package)
-	+ pip install virtualenv
++ nothing currently
 
 ## What is the purpose of this project?
 + To provide a clean user-interface
