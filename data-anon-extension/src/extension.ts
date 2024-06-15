@@ -378,7 +378,7 @@ function write_order(tables: string, panel : any) {
 	let connection_section;
 	if(used_cs !== undefined) {
 		connection_section = "[Connection CS]\n";
-		connection_section += used_cs + "\n";
+		connection_section += "cs=" + used_cs + "\n";
 	}
 	else if(used_config !== undefined) {
 		connection_section = "[Connection Config]\n";

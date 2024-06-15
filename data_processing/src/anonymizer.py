@@ -6,6 +6,31 @@ from function_finder import FunctionFinder
 from standalone_anonymization_functions import censor_fully
 
 
+def config_from_cs(cs):
+    config_list = []
+    server_start = cs.find('Server=tcp:')
+    server_end = cs.find(';', server_start, len(cs))
+    server = cs[server_start+11:server_end-5]
+
+    db_start = cs.find('Initial Catalog=')
+    db_end = cs.find(';', db_start, len(cs))
+    db = cs[db_start+16:db_end]
+
+    user_start = cs.find('User ID=')
+    user_end = cs.find(';', user_start, len(cs))
+    user = cs[user_start + 8:user_end]
+
+    pw_start = cs.find('Password=')
+    pw_end = cs.find(';', pw_start, len(cs))
+    pw = cs[pw_start + 9:pw_end]
+
+    config_list.append(server)
+    config_list.append(db)
+    config_list.append(user)
+    config_list.append(pw)
+    return config_list
+
+
 def start_anonymization(cs, server, database, username, password, tables):
     """
     Begins the actual anonymization.
@@ -19,7 +44,12 @@ def start_anonymization(cs, server, database, username, password, tables):
     """
 
     # construct other data from cs if necessary and possible
-    # TODO Implement
+    if cs != '' and server == '':
+        extracted_config = config_from_cs(cs)
+        server = extracted_config[0]
+        database = extracted_config[1]
+        username = extracted_config[2]
+        password = extracted_config[3]
 
     ext_print("Starting Anonymization")
 
