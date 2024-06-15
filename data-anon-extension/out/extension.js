@@ -65,14 +65,12 @@ function activate(context) {
                     console.log('open db config:  ' + message.text);
                     used_config = config_string_to_config(message.text);
                     connectAndQueryDB_plus_buildSelectionPage(panel);
-                    //write_order("t1");
                     break;
                 case 'load_connection_form':
                     panel.webview.html = getDatabaseSelectionWebviewContent();
                     break;
                 case 'python':
-                    write_order(message.text);
-                    panel.webview.html = getDatabaseSelectionWebviewContent();
+                    write_order(message.text, panel);
                     break;
                 case 'report':
                     console.log("[Report]: " + message.text);
@@ -310,40 +308,72 @@ function connectAndQueryDB_plus_buildSelectionPage(panel) {
     });
 }
 /* Function calling Python */
-function call_python() {
+function call_python(panel) {
     let options = {
         args: [path_1.default.join(__dirname, 'output')]
     };
     console.log('starting python');
-    python_shell_1.PythonShell.run(path_1.default.join(__dirname, '..', '..', 'src', 'order_taker.py'), options).then(messages => {
-        console.log('finished python');
+    let pyshell = new python_shell_1.PythonShell(path_1.default.join(__dirname, '..', '..', 'data_processing', 'src', 'order_receiver.py'));
+    pyshell.on('message', function (message) {
+        console.log(message);
+        if (message.substring(0, 4) === "[S] ") {
+            panel.webview.html += message + "<br>";
+        }
     });
+    pyshell.end(function (err, code, signal) {
+        if (err) {
+            throw err;
+        }
+        console.log('Exit code: ' + code);
+        console.log('Exit signal: ' + signal);
+        console.log('finished');
+        setTimeout(() => {
+            panel.webview.html = getDatabaseSelectionWebviewContent();
+        }, 1000);
+    });
+    // PythonShell.run(path.join(__dirname, '..', '..', 'src', 'order_taker.py'), options).then(messages=>{
+    // 	console.log('finished python');
+    // });
 }
 /* 	Function that writes details for an anonymization order to a file for python.
     Draws Connection details from global vars.
 */
-function write_order(tables) {
+function write_order(tables, panel) {
+    panel.webview.html = `
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8">
+			<title>Test</title>
+			<link rel="stylesheet" href="${style}">
+		</head>
+		<body>
+		<p id="loading">Anonymizing</p>
+		<div id="spinner" class="lds-dual-ring"></div>
+		</body>
+	</html>
+	`;
     const fs = require('fs');
-    let path_string = path_1.default.join(__dirname, '..', '..', 'order');
+    let path_string = path_1.default.join(__dirname, '..', '..', 'order.order');
     // Build content of order
-    let content = "[Anonymization Order]\n";
+    let content = "[AnonymizationOrder]\n";
     let connection_section;
     if (used_cs !== undefined) {
-        connection_section = "[Connection String]\n";
+        connection_section = "[Connection CS]\n";
         connection_section += used_cs + "\n";
     }
     else if (used_config !== undefined) {
-        connection_section = "[Config]\n";
-        connection_section += used_config.user + "\n";
-        connection_section += used_config.password + "\n";
-        connection_section += used_config.server + "\n";
-        connection_section += used_config.database + "\n";
+        connection_section = "[Connection Config]\n";
+        connection_section += "server=" + used_config.server + "\n";
+        connection_section += "database=" + used_config.database + "\n";
+        connection_section += "username=" + used_config.user + "\n";
+        connection_section += "password=" + used_config.password + "\n";
     }
     else {
         connection_section = "erroneus state";
     }
     content += connection_section;
-    content += "[TABLES]\n";
+    content += "[Tables]\n";
     content += tables;
     // Write order to file
     fs.writeFile(path_string, content, function (err) {
@@ -351,7 +381,7 @@ function write_order(tables) {
             return console.log(err);
         }
         console.log("The file was saved!");
-        call_python();
+        call_python(panel);
     });
 }
 function deactivate() { }
