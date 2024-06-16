@@ -1,5 +1,6 @@
 from pathlib import Path
 from anonymizer import start_anonymization
+from ExtensionHelper import ext_print
 
 
 def take_order():
@@ -63,7 +64,11 @@ def take_order():
             tables.append(lines[table_name])
 
     # call actual anonymization
-    start_anonymization(cs, server, database, username, password, tables)
+    try:
+        start_anonymization(cs, server, database, username, password, tables)
+    except Exception as e:
+        ext_print(str(e))
+        raise e
 
 
 # Main for debugging and testing only
