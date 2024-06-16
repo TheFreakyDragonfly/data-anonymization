@@ -45,14 +45,14 @@ def take_order():
                 raise ValueError("No password provided!")
         elif lines[1] == "[Connection CS]":
             if lines[2][0:3] == "cs=":
-                cs = 'value'
+                cs = lines[2][3:]
             else:
                 raise ValueError("No cs provided!")
         else:
             raise ValueError("No Config or connection string provided!")
 
         if lines[1] == "[Connection CS]":
-            next_line_index = 2
+            next_line_index = 3
         else:
             next_line_index = 6
         if lines[next_line_index] != "[Tables]":
