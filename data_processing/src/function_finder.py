@@ -28,37 +28,53 @@ class FunctionFinder:
         # match different cases
         if re.match(r"\bid\b", c_low) and re.match('([a-zA-Z]+)|([0-9]+)', example_data):
             return anonymize_id
-        if 'company' in c_low:
+
+        if re.match(r"\bcompany\b", c_low):
             return anonymize_company_name
-        if (re.match('email|e-mail', c_low)
+
+        if (re.match(r"\bemail\b|\be-mail\b", c_low)
                 or re.match(r"[^@]+@[^@]+\.[^@]+", example_data.lower())):
             return anonymize_email
-        if 'position' in c_low or 'title' in c_low:
+
+        if re.match(r"\bposition\b|\btitle\b", c_low):
             return anonymize_position
-        if 'name' in c_low:
+
+        if re.match(r".*name\b", c_low):
             return anonymize_name
-        if 'address' in c_low:
+
+        if re.match(r".*address\b", c_low):
             return generalize_address
-        if 'phone' in c_low:
+
+        if re.match(r"phone", c_low):
             return anonymize_phone
-        if 'fax' in c_low:
+
+        if re.match(r"\bfax", c_low):
             return anonymize_phone
+
         if (re.match(r"\biban\b", c_low)
                 or re.match('[A-Z]{2}\\d{2}\\s?([A-Z0-9]+\\s?)+', str(example_data))
                 and len(example_data) >= 16):
             return Finance.anonymize_iban
+
         if (re.match(r"\bdate\b", c_low)
                 or re.match('\\d{2}.\\d{2}.\\d{4}', str(example_data))
                 or re.match('\\d{4}.\\d{2}.\\d{2}', str(example_data))):
             return Personal.anonymizing_date
-        if re.match(r"\bcountry\b", c_low) or str(Translator(to_lang="en").translate(example_data)) in all_countries:
+
+        if (re.match(r"\bcountry\b", c_low)
+                or str(Translator(to_lang="en").translate(example_data)) in all_countries):
             return Personal.anonymize_country
-        if re.match(r"\bcity\b", c_low) or len(GeoText(str(example_data)).cities) > 0:
+
+        if (re.match(r"\bcity\b", c_low)
+                or len(GeoText(str(example_data)).cities) > 0):
             return Personal.anonymize_city
+
         if re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip()):
             return Personal.anonymize_name
+
         if re.match('[A-Z0-9]+', str(example_data)):
             return Finance.anonymize_by_replacing
+
         if re.match(".*,.*", str(example_data).rstrip()):
             return Personal.anonymize_name
 
