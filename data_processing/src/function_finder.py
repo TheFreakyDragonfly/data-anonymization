@@ -1,12 +1,12 @@
 import re
 from standalone_anonymization_functions import *
-from translate import Translator
 from pycountry import countries
 from geotext import GeoText
 from finance import Finance
 from personal import Personal
 from LLMInteractor import LLMInteractor
 from ExtensionHelper import ext_print
+import translators as ts
 all_countries = [country.name for country in countries]
 
 
@@ -39,13 +39,11 @@ class FunctionFinder:
         if re.match(r"\bposition\b|\btitle\b", c_low):
             return anonymize_position
 
-        if re.match(r".*name\b", c_low):
-            return anonymize_name
-
         if re.match(r".*address\b", c_low):
             return generalize_address
 
-        if re.match(r"phone", c_low):
+        if (re.match(r".*phone.*", c_low)
+                or re.match(r"(\+?\d-)?(\d{3}-)?\d{3}-\d{4}", example_data)):
             return anonymize_phone
 
         if re.match(r"\bfax", c_low):
@@ -61,22 +59,24 @@ class FunctionFinder:
                 or re.match('\\d{4}.\\d{2}.\\d{2}', str(example_data))):
             return Personal.anonymizing_date
 
+        formatted_country = ts.translate_text(str(example_data)).title()
+        # formatted_country = str(Translator(to_lang="en").translate(example_data)).title()
         if (re.match(r"\bcountry\b", c_low)
-                or str(Translator(to_lang="en").translate(example_data)) in all_countries):
+                or formatted_country in all_countries):
             return Personal.anonymize_country
 
         if (re.match(r"\bcity\b", c_low)
                 or len(GeoText(str(example_data)).cities) > 0):
             return Personal.anonymize_city
 
-        if re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip()):
-            return Personal.anonymize_name
-
-        if re.match('[A-Z0-9]+', str(example_data)):
+        if (re.match(r"[A-Z0-9]{12}", str(example_data))
+                or re.match(r".*transaction number.*", c_low)):
             return Finance.anonymize_by_replacing
 
-        if re.match(".*,.*", str(example_data).rstrip()):
-            return Personal.anonymize_name
+        if (re.match(r".*name\b", c_low)
+                or re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())
+                or re.match(".*,.*", str(example_data).rstrip())):
+            return anonymize_name  # personal anonymize name?
 
         # Ask llm as last measure
         if allow_llm:

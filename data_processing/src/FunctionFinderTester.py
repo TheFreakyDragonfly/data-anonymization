@@ -1,6 +1,7 @@
 import unittest
 from function_finder import FunctionFinder
 from src.finance import Finance
+from src.personal import Personal
 from standalone_anonymization_functions import *
 
 
@@ -54,28 +55,6 @@ class TestFunctionFinder(unittest.TestCase):
             matcher('xxxxx', 'email.com')
         )
 
-    def test_finding_iban(self):
-        self.assertEqual(
-            Finance.anonymize_iban.__name__,
-            matcher('iban', '12').__name__
-        )
-        self.assertEqual(
-            Finance.anonymize_iban.__name__,
-            matcher('xxxx', 'NL69ABNA6863597098').__name__
-        )
-        self.assertEqual(
-            Finance.anonymize_iban.__name__,
-            matcher('xxxx', 'SA7771894124119856364796').__name__
-        )
-        self.assertNotEqual(
-            Finance.anonymize_iban.__name__,
-            matcher('taliban', '12').__name__
-        )
-        self.assertNotEqual(
-            Finance.anonymize_iban.__name__,
-            matcher('xxxx', 'DE12345').__name__
-        )
-
     def test_finding_title(self):
         self.assertEqual(
             anonymize_position,
@@ -107,6 +86,26 @@ class TestFunctionFinder(unittest.TestCase):
             anonymize_name,
             matcher('namesake', 'xxxxx')
         )
+        self.assertEqual(
+            anonymize_name,
+            matcher('xxxx', 'John Doe')
+        )
+        self.assertEqual(
+            anonymize_name,
+            matcher('xxxx', 'Max Mustermann')
+        )
+        self.assertEqual(
+            anonymize_name,
+            matcher('xxxx', 'Martin Luther King Jr.')
+        )
+        self.assertEqual(
+            anonymize_name,
+            matcher('xxxx', 'Johannes Paul II.')
+        )
+        self.assertEqual(
+            anonymize_name,
+            matcher('xxxx', 'John, Elton')
+        )
 
     def test_finding_address(self):
         self.assertEqual(
@@ -126,4 +125,148 @@ class TestFunctionFinder(unittest.TestCase):
             matcher('addressee', 'xxxxx')
         )
 
-    # continue testing from phone
+    def test_finding_phone(self):
+        self.assertEqual(
+            anonymize_phone,
+            matcher('telephone', 'xxxxx')
+        )
+        self.assertEqual(
+            anonymize_phone,
+            matcher('phonenumber', 'xxxxx')
+        )
+        self.assertEqual(
+            anonymize_phone,
+            matcher('phone', 'xxxxx')
+        )
+        self.assertEqual(
+            anonymize_phone,
+            matcher('xxxxx', '123-123-1234')
+        )
+        self.assertEqual(
+            anonymize_phone,
+            matcher('xxxxx', '+1-123-123-1234')
+        )
+        self.assertEqual(
+            anonymize_phone,
+            matcher('xxxxx', '123-1234')
+        )
+
+    def test_finding_fax(self):
+        self.assertEqual(
+            anonymize_phone,
+            matcher('fax', 'xxxxx')
+        )
+        self.assertEqual(
+            anonymize_phone,
+            matcher('faxnumber', 'xxxxx')
+        )
+        self.assertNotEqual(
+            anonymize_phone,
+            matcher('halifax', 'xxxxx')
+        )
+
+    def test_finding_iban(self):
+        self.assertEqual(
+            Finance.anonymize_iban.__name__,
+            matcher('iban', '12').__name__
+        )
+        self.assertEqual(
+            Finance.anonymize_iban.__name__,
+            matcher('xxxx', 'NL69ABNA6863597098').__name__
+        )
+        self.assertEqual(
+            Finance.anonymize_iban.__name__,
+            matcher('xxxx', 'SA7771894124119856364796').__name__
+        )
+        self.assertNotEqual(
+            Finance.anonymize_iban.__name__,
+            matcher('taliban', '12').__name__
+        )
+        self.assertNotEqual(
+            Finance.anonymize_iban.__name__,
+            matcher('xxxx', 'DE12345').__name__
+        )
+
+    def test_finding_date(self):  # TODO continue HERE
+        self.assertEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('date', 'xxxxx').__name__
+        )
+        self.assertEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('xxxx', '01.01.2000').__name__
+        )
+        self.assertEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('xxxx', '01.01.2000').__name__
+        )
+        self.assertEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('xxxx', '2000-01-01').__name__
+        )
+        self.assertEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('xxxx', '01/01/2000').__name__
+        )
+
+    def test_finding_country(self):
+        self.assertEqual(
+            Personal.anonymize_country.__name__,
+            matcher('country', 'xxxxx').__name__
+        )
+        self.assertEqual(
+            Personal.anonymize_country.__name__,
+            matcher('xxxxx', 'germany').__name__
+        )
+        self.assertEqual(
+            Personal.anonymize_country.__name__,
+            matcher('xxxxx', 'deutschland').__name__
+        )
+        self.assertEqual(
+            Personal.anonymize_country.__name__,
+            matcher('xxxxx', 'Lietuva').__name__ # Lithuania in Lithuanian
+        )
+        self.assertNotEqual(
+            Personal.anonymize_country.__name__,
+            matcher('xxxxx', 'xxxxx').__name__
+        )
+
+    def test_finding_city(self):
+        self.assertEqual(
+            Personal.anonymize_city.__name__,
+            matcher('city', 'xxxxx').__name__
+        )
+        self.assertEqual(
+            Personal.anonymize_city.__name__,
+            matcher('xxxx', 'London').__name__
+        )
+        self.assertEqual(
+            Personal.anonymize_city.__name__,
+            matcher('xxxx', 'Derry').__name__
+        )
+        self.assertEqual(
+            Personal.anonymize_city.__name__,
+            matcher('xxxx', 'Stuttgart').__name__
+        )
+        self.assertNotEqual(
+            Personal.anonymize_city.__name__,
+            matcher('xxxx', 'xxxxx').__name__
+        )
+
+    def test_finding_transaction_number(self):
+        self.assertEqual(
+            Finance.anonymize_by_replacing.__name__,
+            matcher('transaction number', 'xxxxx').__name__
+        )
+        self.assertEqual(
+            Finance.anonymize_by_replacing.__name__,
+            matcher('xxxxx', 'VADE0B248932').__name__
+        )
+        self.assertEqual(
+            Finance.anonymize_by_replacing.__name__,
+            matcher('xxxxx', 'ACRAF23DB3C4').__name__
+        )
+        self.assertNotEqual(
+            Finance.anonymize_by_replacing.__name__,
+            matcher('xxxxx', 'xxxxx').__name__
+        )
