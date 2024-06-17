@@ -96,7 +96,7 @@ body {
 #config_button {
     position: absolute;
     left: 71vw;
-    top: 49vh;
+    top: 60vh;
 }
 
 #vertical_line {
@@ -174,6 +174,23 @@ body {
     top: 40vh;
     font-size: 2.5vh;
     user-select: none;
+    cursor: pointer;
+}
+
+#trust_and_label {
+    position: absolute;
+    left: 8vw;
+    top: 20vh;
+    width: 20vw;
+    font-size: 2.5vh;
+    user-select: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+#checkbox_trust {
+    width: 1.2vw;
+    height: 2.4vh;
     cursor: pointer;
 }
 

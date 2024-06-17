@@ -24,14 +24,19 @@ def config_from_cs(cs):
     pw_end = cs.find(';', pw_start, len(cs))
     pw = cs[pw_start + 9:pw_end]
 
+    trust_start = cs.find('TrustServerCertificate=')
+    trust_end = cs.find(';', trust_start, len(cs))
+    trust = cs[trust_start + 23:pw_end] == "True"
+
     config_list.append(server)
     config_list.append(db)
     config_list.append(user)
     config_list.append(pw)
+    config_list.append(trust)
     return config_list
 
 
-def start_anonymization(cs, server, database, username, password, tables):
+def start_anonymization(cs, server, database, username, password, trust, tables):
     """
     Begins the actual anonymization.
     :param cs: connection string or None.
@@ -39,6 +44,7 @@ def start_anonymization(cs, server, database, username, password, tables):
     :param database: database or None.
     :param username: username or None.
     :param password: password or None.
+    :param trust: TrustServerCertificate.
     :param tables: list of tables.
     :return: no return.
     """
@@ -50,12 +56,16 @@ def start_anonymization(cs, server, database, username, password, tables):
         database = extracted_config[1]
         username = extracted_config[2]
         password = extracted_config[3]
+        trust = extracted_config[4]
 
     ext_print("Starting Anonymization")
 
     # use config details to connect
     driver = '{ODBC Driver 18 for SQL Server}'
-    odbc_connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+    if trust:
+        odbc_connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes'
+    else:
+        odbc_connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
     connection = pyodbc.connect(odbc_connection_string)
 
     ext_print("Established Connection")
@@ -112,7 +122,6 @@ def anonymize_table(cursor, table):
     full_table = cursor.fetchall()
 
     # write non-anonymized to csv
-    # TODO Make 2 segments into 1 Function
     path_to_csv = Path(__file__).resolve().parent.parent.parent / (table.TABLE_NAME.replace(" ", "_") + "-non.csv")
     write_to_csv(path_to_csv, columns, full_table)
 
@@ -122,13 +131,14 @@ def anonymize_table(cursor, table):
 
 
 def write_to_csv(path_to_csv, columns, full_table, anonymize=False, matching=None):
+    full_count = len(full_table)
     with open(path_to_csv, 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=';')
         list_columns = []
         for column in columns:
             list_columns.append(column.COLUMN_NAME)
         spamwriter.writerow(list_columns)
-        for row in full_table:
+        for i, row in enumerate(full_table):
             list_content = []
             for index, item in enumerate(row):
                 if anonymize:
@@ -143,6 +153,9 @@ def write_to_csv(path_to_csv, columns, full_table, anonymize=False, matching=Non
                 else:
                     list_content.append(item)
             spamwriter.writerow(list_content)
+            # give updates sometimes
+            if i % (full_count/4) == 0:
+                ext_print(str(i) + '/' + str(full_count))
 
 
 # Main for debugging and testing only

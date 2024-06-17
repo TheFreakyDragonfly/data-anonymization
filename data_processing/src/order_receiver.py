@@ -17,6 +17,7 @@ def take_order():
     database = ''  # looks like: Northwind
     username = ''  # looks like: data-anon
     password = ''  # looks like: Lantanio13891!
+    trust = False
 
     # get content of variables and list of tables from order.order
     with open(path_to_order) as orderFile:
@@ -44,6 +45,8 @@ def take_order():
                 password = lines[5][9:]
             else:
                 raise ValueError("No password provided!")
+            if lines[6][0:10] == "trust=true":
+                trust = True
         elif lines[1] == "[Connection CS]":
             if lines[2][0:3] == "cs=":
                 cs = lines[2][3:]
@@ -55,7 +58,7 @@ def take_order():
         if lines[1] == "[Connection CS]":
             next_line_index = 3
         else:
-            next_line_index = 6
+            next_line_index = 7
         if lines[next_line_index] != "[Tables]":
             raise ValueError("No tables provided!")
 
@@ -65,7 +68,7 @@ def take_order():
 
     # call actual anonymization
     try:
-        start_anonymization(cs, server, database, username, password, tables)
+        start_anonymization(cs, server, database, username, password, trust, tables)
     except Exception as e:
         ext_print(str(e))
         raise e

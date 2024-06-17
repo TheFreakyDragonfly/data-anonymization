@@ -124,10 +124,11 @@ function getDatabaseSelectionWebviewContent() {
 						let password = document.getElementById("password").value;
 						let server = document.getElementById("server").value;
 						let database = document.getElementById("database").value;
+						let trust_server_cert = document.getElementById("checkbox_trust").checked;
 						
 						vscode.postMessage({
 							command: 'open_db_config',
-							text: user + ";" + password + ";" + server + ";" + database
+							text: user + ";" + password + ";" + server + ";" + database + ";" + trust_server_cert
 						});
 						show_trying_to_open();
 					}
@@ -155,6 +156,10 @@ function getDatabaseSelectionWebviewContent() {
 					<input class="input_general" id="password" placeholder="Password"/><br>
 					<input class="input_general" id="server" placeholder="Server"/><br>
 					<input class="input_general" id="database" placeholder="Database"/><br>
+					<div id="trust_and_label">
+						<input type="checkbox" id="checkbox_trust" onclick="" />
+						<label for="checkbox_trust">Trust Server Certificate</label>
+					</div>
 				</div>
 				<button class="open_button" id="config_button" onclick="message_config()">Open</button>
 			</body>
@@ -164,13 +169,28 @@ function getDatabaseSelectionWebviewContent() {
 
 /* Turns a string into a config */
 function config_string_to_config(given_config: string) {
-	let split = given_config.split(";", 4);
-	let config = {
-		user: split[0],
-		password: split[1],
-		server: split[2],
-		database: split[3],
-	};
+	let split = given_config.split(";", 5);
+	let config;
+	if(split[5] === "false") {
+		config = {
+			user: split[0],
+			password: split[1],
+			server: split[2],
+			database: split[3],
+		};
+	}
+	else {
+		config = {
+			user: split[0],
+			password: split[1],
+			server: split[2],
+			database: split[3],
+			options: {
+				trustServerCertificate: true
+			}
+		};
+	}
+	
 	return config;
 }
 
@@ -386,6 +406,7 @@ function write_order(tables: string, panel : any) {
 		connection_section += "database=" + used_config.database + "\n";
 		connection_section += "username=" + used_config.user + "\n";
 		connection_section += "password=" + used_config.password + "\n";
+		connection_section += "trust=" + used_config.options.trustServerCertificate + "\n";
 	}
 	else {
 		connection_section = "erroneus state";
