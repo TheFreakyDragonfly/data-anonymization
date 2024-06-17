@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# extension out
+data-anon-extension/out
+
 # other
 .idea
 order.order
