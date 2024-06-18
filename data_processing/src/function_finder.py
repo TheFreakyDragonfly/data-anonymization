@@ -7,7 +7,7 @@ from personal import Personal
 from LLMInteractor import LLMInteractor
 from ExtensionHelper import ext_print
 import translators as ts
-all_countries = [country.name for country in countries]
+all_countries = [country.name for country in countries]  # postalcode customerid
 
 
 class FunctionFinder:
@@ -26,7 +26,8 @@ class FunctionFinder:
         c_low = column_name.lower()
 
         # match different cases
-        if re.match(r"\bid\b", c_low) and re.match('([a-zA-Z]+)|([0-9]+)', example_data):
+        if ((re.match(r"\bid\b", c_low) or re.match(r".*[a-z]I[dD]\b", column_name))
+                and re.match('([a-zA-Z]+)|([0-9]+)', example_data)):
             return anonymize_id
 
         if re.match(r"\bcompany\b", c_low):
@@ -72,6 +73,10 @@ class FunctionFinder:
         if (re.match(r"[A-Z0-9]{12}", str(example_data))
                 or re.match(r".*transaction number.*", c_low)):
             return Finance.anonymize_by_replacing
+
+        if (re.match(r"\bpostal code\b", c_low)
+                or re.match(r"([a-zA-Z]-)?\d{4,5}(-\d{3})?", str(example_data))):
+            return anonymize_postal_code
 
         if (re.match(r".*name\b", c_low)
                 or re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())

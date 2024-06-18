@@ -57,3 +57,6 @@ def generalize_address(value):
     if len(parts) > 1:
         return parts[-2].strip() + ', ' + parts[-1].strip()
     return value
+
+def anonymize_postal_code(value):
+    return 0

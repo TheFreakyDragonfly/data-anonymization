@@ -18,6 +18,10 @@ class TestFunctionFinder(unittest.TestCase):
             anonymize_id,
             matcher('id', 'AFAIK')
         )
+        self.assertEqual(
+            anonymize_id,
+            matcher('CustomerID', '121')
+        )
         self.assertNotEqual(
             anonymize_id,
             matcher('kid', 'joseph')
@@ -269,4 +273,18 @@ class TestFunctionFinder(unittest.TestCase):
         self.assertNotEqual(
             Finance.anonymize_by_replacing.__name__,
             matcher('xxxxx', 'xxxxx').__name__
+        )
+
+    def test_finding_postal_code(self):
+        self.assertEqual(
+            anonymize_postal_code,
+            matcher('postal code', 'xxxxx')
+        )
+        self.assertEqual(
+            anonymize_postal_code,
+            matcher('xxxxx', '12345')
+        )
+        self.assertEqual(
+            anonymize_postal_code,
+            matcher('xxxxx', 'B-6000')
         )
