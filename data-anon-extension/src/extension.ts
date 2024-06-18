@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
 						break;
 
 					case 'python':
-						write_order(message.text, panel);
+						write_order(message.text, 0, panel);
 						break;
 
 					case 'report':
@@ -373,7 +373,7 @@ function call_python(panel : any) {
 /* 	Function that writes details for an anonymization order to a file for python.
 	Draws Connection details from global vars.
 */
-function write_order(tables: string, panel : any) {
+function write_order(tables: string, limit : any, panel : any) {
 	panel.webview.html = `
 	<!DOCTYPE html>
 	<html lang="en">
@@ -412,6 +412,9 @@ function write_order(tables: string, panel : any) {
 		connection_section = "erroneus state";
 	}
 	content += connection_section;
+
+	content += "[Limit]" + "\n";
+	content += "lim=" + limit + "\n";
 
 	content += "[Tables]\n";
 	content += tables;

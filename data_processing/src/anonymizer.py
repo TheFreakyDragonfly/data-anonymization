@@ -36,7 +36,7 @@ def config_from_cs(cs):
     return config_list
 
 
-def start_anonymization(cs, server, database, username, password, trust, tables):
+def start_anonymization(cs, server, database, username, password, trust, tables, row_cap=0):
     """
     Begins the actual anonymization.
     :param cs: connection string or None.
@@ -46,6 +46,7 @@ def start_anonymization(cs, server, database, username, password, trust, tables)
     :param password: password or None.
     :param trust: TrustServerCertificate.
     :param tables: list of tables.
+    :param row_cap: Amount of rows to put out or 0 for all.
     :return: no return.
     """
 
@@ -81,16 +82,17 @@ def start_anonymization(cs, server, database, username, password, trust, tables)
     for table in db_tables:
         # launch anonymization when it matches tables in anonymization order
         if table.TABLE_NAME in tables:
-            anonymize_table(cursor, table)
+            anonymize_table(cursor, table, row_cap)
 
     ext_print("Finished all tables")
 
 
-def anonymize_table(cursor, table):
+def anonymize_table(cursor, table, row_cap):
     """
     Anonymizes a given table.
     :param table:
     :param cursor:
+    :param row_cap:
     :return:
     """
 
@@ -123,23 +125,25 @@ def anonymize_table(cursor, table):
 
     # write non-anonymized to csv
     path_to_csv = Path(__file__).resolve().parent.parent.parent / (table.TABLE_NAME.replace(" ", "_") + "-non.csv")
-    write_to_csv(path_to_csv, columns, full_table)
+    write_to_csv(path_to_csv, columns, full_table, row_cap)
 
     # write anonymized to csv
     path_to_csv = Path(__file__).resolve().parent.parent.parent / (table.TABLE_NAME.replace(" ", "_") + ".csv")
-    write_to_csv(path_to_csv, columns, full_table, True, matching)
+    write_to_csv(path_to_csv, columns, full_table, row_cap, True, matching)
 
 
-def write_to_csv(path_to_csv, columns, full_table, anonymize=False, matching=None):
+def write_to_csv(path_to_csv, columns, full_table, row_cap, anonymize=False, matching=None):
     full_count = len(full_table)
-    update_interval = full_count // 10
+    update_interval = max(100, full_count // 100)  # at most, update every 100 rows
     with open(path_to_csv, 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=';')
         list_columns = []
         for column in columns:
             list_columns.append(column.COLUMN_NAME)
         spamwriter.writerow(list_columns)
-        for i, row in enumerate(full_table):
+        if row_cap == 0:
+            row_cap = len(full_table)
+        for i, row in enumerate(full_table[:row_cap]):
             list_content = []
             for index, item in enumerate(row):
                 if anonymize:
@@ -155,8 +159,8 @@ def write_to_csv(path_to_csv, columns, full_table, anonymize=False, matching=Non
                     list_content.append(item)
             spamwriter.writerow(list_content)
             # give updates sometimes
-            if i % update_interval == 0:
-                ext_print(str(i) + '/' + str(full_count))
+            if i % update_interval == 0 or i == full_count - 1:
+                ext_print(str(i+1) + '/' + str(full_count))
 
 
 # Main for debugging and testing only
