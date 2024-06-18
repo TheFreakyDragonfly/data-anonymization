@@ -5,6 +5,9 @@ __pycache__/
 # extension out
 data-anon-extension/out
 
+# produced output
+*.csv
+
 # other
 .idea
 order.order
