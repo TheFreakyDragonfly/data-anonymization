@@ -108,7 +108,7 @@ def anonymize_table(cursor, table):
     # try first using column name, then column content, then using llm
     matching = []
     for column_index, column in enumerate(columns):
-        matched_function = FunctionFinder.match_function_by_regex_name_and_content(column.COLUMN_NAME, row_one[column_index])
+        matched_function = FunctionFinder.match_function_by_regex_name_and_content(column.COLUMN_NAME, row_one[column_index], False)
         if matched_function is None:
             raise ValueError("Couldn't match column to a function!")
 
@@ -132,6 +132,7 @@ def anonymize_table(cursor, table):
 
 def write_to_csv(path_to_csv, columns, full_table, anonymize=False, matching=None):
     full_count = len(full_table)
+    update_interval = full_count // 10
     with open(path_to_csv, 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=';')
         list_columns = []
@@ -154,10 +155,10 @@ def write_to_csv(path_to_csv, columns, full_table, anonymize=False, matching=Non
                     list_content.append(item)
             spamwriter.writerow(list_content)
             # give updates sometimes
-            if i % (full_count/4) == 0:
+            if i % update_interval == 0:
                 ext_print(str(i) + '/' + str(full_count))
 
 
 # Main for debugging and testing only
 if __name__ == "__main__":
-    start_anonymization('cs', 'serv', 'db', 'un', 'pw', [])
+    start_anonymization('cs', 'serv', 'db', 'un', 'pw', False, [])

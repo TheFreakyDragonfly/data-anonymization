@@ -8,7 +8,7 @@ def anonymize_nothing(value):
 
 
 def mask_value(value, mask_char='X'):
-    return mask_char * len(value)
+    return mask_char * len(str(value))
 
 
 def censor_fully(value):
