@@ -108,7 +108,7 @@ def anonymize_table(cursor, table):
     # try first using column name, then column content, then using llm
     matching = []
     for column_index, column in enumerate(columns):
-        matched_function = FunctionFinder.match_function_by_regex_name_and_content(column.COLUMN_NAME, row_one[column_index], False)
+        matched_function = FunctionFinder.match_function_by_regex_name_and_content(column.COLUMN_NAME, row_one[column_index])
         if matched_function is None:
             raise ValueError("Couldn't match column to a function!")
 

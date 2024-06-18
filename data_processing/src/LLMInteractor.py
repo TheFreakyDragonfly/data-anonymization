@@ -1,4 +1,4 @@
-import llm
+import ollama
 
 
 class LLMInteractor:
@@ -7,19 +7,19 @@ class LLMInteractor:
     """
 
     def __init__(self):
-        self.llm = 'mistral-7b-instruct-v0'
+        self.llm = 'llama3'
 
     def set_llm(self, llm_name):
         self.llm = llm_name
 
     def ask_about_column_name(self, column_name):
-        print('asking ' + self.llm + ' about: ' + column_name)
-        model = llm.get_model(self.llm)
-        model.key = ''
-        response = model.prompt(
-            'Do you think that  ' + column_name
-            + ' is personal data?'
-            + ' Answer with as few words as possible!'
-        )
-        print(response.text())
-        return "Yes" == response.text()[1:4]
+        response = ollama.chat(model=self.llm, messages=[
+            {
+                'role': 'user',
+                'content': 'Do you think that  '
+                           + column_name + ' is personal data?'
+                           + ' Answer with as few words as possible!',
+            },
+        ])
+        print(response['message']['content'])
+        return "Yes" == response['message']['content'][1:4]
