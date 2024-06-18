@@ -227,11 +227,21 @@ body {
 /* Loading Spinner */
 #loading {
     position: absolute;
-    left: 45vw;
+    left: 40vw;
     top: 30vh;
-    width: 10vw;
+    width: 20vw;
     text-align: center;
     font-size: 5vh;
+    user-select: none;
+}
+
+#currentStep {
+    position: absolute;
+    left: 30vw;
+    top: 56vh;
+    width: 40vw;
+    text-align: center;
+    font-size: 3vh;
     user-select: none;
 }
 

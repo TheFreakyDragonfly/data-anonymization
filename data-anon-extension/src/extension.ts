@@ -348,8 +348,19 @@ function call_python(panel : any) {
 	let pyshell = new PythonShell(path.join(__dirname, '..', '..', 'data_processing', 'src', 'order_receiver.py'));
 	pyshell.on('message', function(message) {
 		console.log(message);
-		if(message.substring(0,4) === "[S] ") {
-			panel.webview.html += message + "<br>";
+		if(message.substring(0,4) === "[S] ") { // recognise instructions for Extension
+			if(message.substring(4,15) === "[tendency] ") {
+				let rest = message.substring(15, message.length);
+				let splitted = rest.split(";");
+				let column_name = splitted[0];
+				let tendency_value = parseFloat(splitted[1]);
+				panel.webview.postMessage({ command: 'tendency', column: column_name, value: tendency_value });
+			}
+			else {
+				// panel.webview.html += message + "<br>";
+				let cut_message = message.substring(4, message.length);
+				panel.webview.postMessage({ command: 'show', content: cut_message });
+			}
 		}
 	});
 
@@ -364,10 +375,6 @@ function call_python(panel : any) {
 			panel.webview.html = getDatabaseSelectionWebviewContent();
 		}, 1000);
 	});
-	
-	// PythonShell.run(path.join(__dirname, '..', '..', 'src', 'order_taker.py'), options).then(messages=>{
-	// 	console.log('finished python');
-	// });
 }
 
 /* 	Function that writes details for an anonymization order to a file for python.
@@ -381,10 +388,40 @@ function write_order(tables: string, limit : any, panel : any) {
 			<meta charset="UTF-8">
 			<title>Test</title>
 			<link rel="stylesheet" href="${style}">
+			<script>
+				window.addEventListener('message', event => {
+
+					const message = event.data; // The JSON data our extension sent
+
+					switch (message.command) {
+						case 'show':
+							document.getElementById("currentStep").innerHTML = message.content;
+							break;
+						case 'tendency':
+							let a = (message.value * 100) + '%';
+							let b = ((1 - message.value) * 100) + '%';
+							let tendency_display = '<span style="color:green;">(' + a + ') Yes</span> ';
+							for(let i = 1; i <= 10; i++) {
+								if(message.value >= i * 0.1) {
+									tendency_display += "+ ";
+								}
+								else {
+									tendency_display += "- ";
+								}
+							}
+							tendency_display += '<span style="color:red;">No (' + b + ')</span>';
+							document.getElementById("currentStep").innerHTML =
+								"Determining Tendency:<br>" + message.column + "<br>"
+								+ tendency_display;
+							break;
+					}
+				});
+			</script>
 		</head>
 		<body>
 		<p id="loading">Anonymizing</p>
 		<div id="spinner" class="lds-dual-ring"></div>
+		<p id="currentStep">...</p>
 		</body>
 	</html>
 	`;
