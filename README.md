@@ -27,7 +27,8 @@ The folder **data-anon-extension** contains all files related to the VSCode exte
 ## What does the project depend on?
 Some dependencies are installed with the project.
 Other required dependencies:
-+ nothing currently
++ ollama installed
++ llama3 model installed
 
 ## What is the purpose of this project?
 + To provide a clean user-interface
