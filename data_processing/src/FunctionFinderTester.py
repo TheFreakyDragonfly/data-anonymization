@@ -288,3 +288,43 @@ class TestFunctionFinder(unittest.TestCase):
             anonymize_postal_code,
             matcher('xxxxx', 'B-6000')
         )
+
+    def test_finding_price(self):
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('price', 'xxxxx')
+        )
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('extendedPrice', 'xxxxx')
+        )
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('xxxxx', '10$')
+        )
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('xxxxx', '€40')
+        )
+
+    def test_finding_percentages(self):
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('xxxxx', '10%')
+        )
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('xxxxx', '1.0%')
+        )
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('xxxxx', '1,0%')
+        )
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('xxxxx', '0.99')
+        )
+        self.assertEqual(
+            anonymize_nothing,
+            matcher('xxxxx', '0,99')
+        )
