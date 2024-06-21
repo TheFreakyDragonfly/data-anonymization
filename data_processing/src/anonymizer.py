@@ -110,6 +110,8 @@ def anonymize_table(cursor, table, row_cap):
     # try first using column name, then column content, then using llm
     matching = []
     for column_index, column in enumerate(columns):
+        if row_one is None or len(row_one) == 0:  # exit if no data is in table
+            return
         matched_function = FunctionFinder.match_function_by_regex_name_and_content(column.COLUMN_NAME, row_one[column_index])
 
         # select matched_function for all values in this column

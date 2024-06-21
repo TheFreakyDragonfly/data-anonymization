@@ -25,6 +25,11 @@ class FunctionFinder:
         # set up useful variables
         c_low = column_name.lower()
 
+        if len(column_name) > 250:
+            column_name = column_name[:250]
+        if len(example_data) > 250:
+            example_data = example_data[:250]
+
         # match different cases
         if ((re.match(r"\bid\b", c_low) or re.match(r".*[a-z]I[dD]\b", column_name))
                 and re.match('([a-zA-Z]+)|([0-9]+)', example_data)):

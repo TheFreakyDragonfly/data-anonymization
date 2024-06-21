@@ -29,7 +29,7 @@ class LLMInteractor:
                           f'or "no". The piece of information is: "{column_name}"'
 
         yes_tendency = 0.0
-        for n in range(100):
+        for n in range(5):
             messages = [{'role': 'user', 'content': message_content}]
 
             stream = ollama.chat(
