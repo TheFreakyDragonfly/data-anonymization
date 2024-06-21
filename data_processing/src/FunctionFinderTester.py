@@ -212,6 +212,18 @@ class TestFunctionFinder(unittest.TestCase):
             Personal.anonymizing_date.__name__,
             matcher('xxxx', '01/01/2000').__name__
         )
+        self.assertEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('xxxx', '21-06.2024').__name__
+        )
+        self.assertEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('xxxx', '21/06/2024').__name__
+        )
+        self.assertNotEqual(
+            Personal.anonymizing_date.__name__,
+            matcher('xxxx', '21ä06e2024').__name__
+        )
 
     def test_finding_country(self):
         self.assertEqual(

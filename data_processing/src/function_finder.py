@@ -56,8 +56,8 @@ class FunctionFinder:
             return Finance.anonymize_iban
 
         if (re.match(r"\bdate\b", c_low)
-                or re.match('\\d{2}.\\d{2}.\\d{4}', str(example_data))
-                or re.match('\\d{4}.\\d{2}.\\d{2}', str(example_data))):
+                or re.match(r'\d{2}[\-./]\d{2}[\-./]\d{4}', str(example_data))
+                or re.match(r'\d{4}[\-./]\d{2}[\-./]\d{2}', str(example_data))):
             return Personal.anonymizing_date
 
         formatted_country = ts.translate_text(str(example_data)).title()
