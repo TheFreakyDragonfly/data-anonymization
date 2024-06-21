@@ -51,3 +51,9 @@ class LLMInteractor:
                 ext_print('[tendency] ' + column_name + ';' + str(yes_tendency))
 
         return yes_tendency >= threshold_yes
+
+    def llm_choose_option(self, column_name, column_data, functions):
+        # Query llm to choose one of the functions in functions
+        # while providing only the column name and some data from column_data
+        # return chosen_option
+        return None
