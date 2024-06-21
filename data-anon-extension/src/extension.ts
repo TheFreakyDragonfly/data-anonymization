@@ -9,6 +9,7 @@ import {exec} from 'child_process';
 var used_config : any | undefined;
 var used_cs: string | undefined;
 var style : any;
+var sql : any;
 
 /* Connection Details for Azure DB; for copy & pasting or testing */
 let default_config = {
@@ -66,6 +67,54 @@ export function activate(context: vscode.ExtensionContext) {
 
 					case 'python':
 						write_order(message.text, 0, panel);
+						break;
+
+					case 'get_preview':
+						let request = new sql.Request();
+
+						let headings : string[] = [];
+						let contents : string[][] = [];
+
+						request.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + message.text + "'", function (err: any, recordset: any) {
+						
+							if (err) {
+								panel.webview.html += "err: " + err + "<br>";
+							}
+
+							for(let i = 0; i < recordset.recordset.length; i++) {
+								headings.push(recordset.recordset[i].COLUMN_NAME);
+							}
+
+							request.query('SELECT * FROM "' + message.text + '"', function (err: any, recordset: any) {
+								
+								if (err) {
+									panel.webview.html += "err: " + err + "<br>";
+								}
+
+								for(let i = 0; i < recordset.recordset.length; i++) {
+									contents[i] = [];
+									
+									Object.keys(recordset.recordset[i]).forEach(function(key,index) {
+										// key: the name of the object key
+										// index: the ordinal position of the key within the object 
+										let value = recordset.recordset[i][key];
+										if ((value !== null) && (value.length > 50) && !(value instanceof Buffer)) {
+											value = value.substring(0, 36);
+											value += " ...";
+										}
+										contents[i].push(value);
+									});
+								}
+
+								let data = {
+									headings: headings,
+									contents: contents
+								};
+		
+								panel.webview.postMessage({ command: 'give_preview', content: data });
+							});
+						});
+						
 						break;
 
 					case 'report':
@@ -196,7 +245,7 @@ function config_string_to_config(given_config: string) {
 
 /* Builds Table-Selection HTML by connecting to server using global vars */
 function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
-	let sql = require("mssql");
+	sql = require("mssql");
 
 	// Establish connection using either config or connectionstring
 	let connection_object;
@@ -241,10 +290,16 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 						var active_index = -1;
 						var all_tables_status = null;
 						var checkbox = null;
+						const vscode = acquireVsCodeApi();
+
+						function message_current_preview(tablename) {
+							vscode.postMessage({
+								command: 'get_preview',
+								text: tablename
+							});
+						}
 
 						function message_go_back() {
-							const vscode = acquireVsCodeApi();
-
 							vscode.postMessage({
 								command: 'load_connection_form',
 								text: ''
@@ -252,8 +307,6 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 						}
 
 						function hand_over_to_python() {
-							const vscode = acquireVsCodeApi();
-
 							let tables = "";
 							for(let i = 0; i < all_tables.length; i++) {
 								if(all_tables_status[i] == true) {
@@ -277,6 +330,9 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 
 								// Load Content for selection
 								checkbox.checked = all_tables_status[active_index];
+
+								// Message  to load preview
+								message_current_preview(element.innerHTML)
 							}
 						}
 
@@ -306,6 +362,42 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 								all_tables_status[active_index] = false;
 							}
 						}
+
+						window.addEventListener('message', event => {
+
+							const message = event.data; // The JSON data our extension sent
+
+							switch (message.command) {
+								case 'give_preview':
+									let preview_table = document.getElementById("preview_table");
+									preview_table.innerHTML = "";
+									let headings = message.content.headings;
+									let contents = message.content.contents;
+									console.log(headings);
+
+									let header_row = document.createElement("tr");
+									for(let i = 0; i < headings.length; i++) {
+										let heading = document.createElement("th");
+										heading.innerHTML = headings[i];
+										header_row.appendChild(heading);
+									}
+									preview_table.appendChild(header_row);
+
+									for(let i = 0; i < 5 && i < contents.length; i++) {
+										let content_row = document.createElement("tr");
+
+										for(let y = 0; y < contents[i].length; y++) {
+											let cell = document.createElement("td");
+											cell.innerHTML = contents[i][y];
+											content_row.appendChild(cell);
+										}
+
+										preview_table.appendChild(content_row);
+									}
+
+									break;
+							}
+						});
 					</script>
 				</head>
 				<body>	
@@ -328,7 +420,12 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 						<input type="checkbox" id="checkbox_anonymize" onclick="checkbox_change(this)" />
 						<label for="checkbox_anonymize">Anonymize</label>
 					</div>
-					<div id="preview_div"></div>
+
+					<div id="preview_div">
+						<table id="preview_table">
+						</table>
+					</div>
+
 					<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
 					<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>
 					<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>

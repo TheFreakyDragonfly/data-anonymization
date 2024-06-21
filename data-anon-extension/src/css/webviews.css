@@ -160,6 +160,7 @@ body {
     width: 84vw;
     height: 35vh;
     background-color: aqua;
+    color: #000000;
 }
 
 #checkbox_anonymize {
