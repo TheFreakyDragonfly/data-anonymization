@@ -110,6 +110,10 @@ class TestFunctionFinder(unittest.TestCase):
             anonymize_name,
             matcher('xxxx', 'John, Elton')
         )
+        self.assertNotEqual(
+            anonymize_name,
+            matcher('xxxx', ',')
+        )
 
     def test_finding_address(self):
         self.assertEqual(

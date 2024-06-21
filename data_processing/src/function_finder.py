@@ -80,7 +80,7 @@ class FunctionFinder:
 
         if (re.match(r".*name\b", c_low)
                 or re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())
-                or re.match("\\D*,\\D*", str(example_data).rstrip())):
+                or re.match("\\D+,\\D+", str(example_data).rstrip())):
             return anonymize_name  # personal anonymize name?
 
         if (re.match(r".*price\b", c_low)
