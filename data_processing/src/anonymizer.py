@@ -111,8 +111,6 @@ def anonymize_table(cursor, table, row_cap):
     matching = []
     for column_index, column in enumerate(columns):
         matched_function = FunctionFinder.match_function_by_regex_name_and_content(column.COLUMN_NAME, row_one[column_index])
-        if matched_function is None:
-            raise ValueError("Couldn't match column to a function!")
 
         # select matched_function for all values in this column
         matching.append(matched_function)
