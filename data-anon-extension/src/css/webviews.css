@@ -224,6 +224,11 @@ body {
     top: 5vh;
 }
 
+#previous_button {
+    left: 80vw;
+    top: 5vh;
+}
+
 /* Loading Spinner */
 #loading {
     position: absolute;

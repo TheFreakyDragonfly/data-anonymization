@@ -288,6 +288,16 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 							}
 						}
 
+						function previous_entry() {
+							if(active_index !== -1) {
+								let newindex = (active_index - 1);
+								if (newindex === -1) {
+									newindex = all_tables.length - 1;
+								}
+								select(all_tables[newindex]);
+							}
+						}
+
 						function checkbox_change() {
 							if(checkbox.checked == true) {
 								all_tables_status[active_index] = true;
@@ -322,6 +332,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 					<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
 					<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>
 					<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>
+					<div id="previous_button" class="nav_button_round" onclick="previous_entry()"><</div>
 					<script>
 						all_tables = document.getElementsByClassName("item_table");
 						active_index = 0;
