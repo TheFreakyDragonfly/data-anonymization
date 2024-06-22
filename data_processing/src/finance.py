@@ -116,7 +116,7 @@ class Finance:
             Employee Number
         """
         length, transaction_num = len(str(data)), ""
-        valid_chars, valid_nums, valid_special_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '1234567890', ".-:,;"
+        valid_chars, valid_nums, valid_special_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '1234567890', ".-:,;() "
         actual_data = str(data)
         for index in range(length):
             if actual_data[index] in valid_chars:
