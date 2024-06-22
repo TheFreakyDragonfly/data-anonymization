@@ -41,7 +41,7 @@ function get_preview(panel : vscode.WebviewPanel, message : any) {
 		}
 
 		request.query(
-			'SELECT * FROM "' + message.text + '"',
+			'SELECT TOP 5 * FROM "' + message.text + '"',
 			(err: Error | AggregateError, recordset: any) => {
 			
 			if (err) {
