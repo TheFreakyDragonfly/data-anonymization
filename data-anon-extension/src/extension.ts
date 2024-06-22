@@ -3,12 +3,11 @@ import * as vscode from 'vscode';
 import mssql = require('mssql');
 import {PythonShell} from 'python-shell';
 import path from 'path';
-import {exec} from 'child_process';
 
 /* Global Variables */
 var used_config : any | undefined;
 var used_cs: string | undefined;
-var style : any;
+var style : vscode.Uri;
 var sql : any;
 
 /* Connection Details for Azure DB; for copy & pasting or testing */
@@ -29,7 +28,9 @@ function get_preview(panel : vscode.WebviewPanel, message : any) {
 	let headings : string[] = [];
 	let contents : string[][] = [];
 
-	request.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + message.text + "'", function (err: any, recordset: any) {
+	request.query(
+		"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + message.text + "'",
+		(err: Error | AggregateError, recordset: any) => {
 	
 		if (err) {
 			panel.webview.html += "err: " + err + "<br>";
@@ -39,7 +40,9 @@ function get_preview(panel : vscode.WebviewPanel, message : any) {
 			headings.push(recordset.recordset[i].COLUMN_NAME);
 		}
 
-		request.query('SELECT * FROM "' + message.text + '"', function (err: any, recordset: any) {
+		request.query(
+			'SELECT * FROM "' + message.text + '"',
+			(err: Error | AggregateError, recordset: any) => {
 			
 			if (err) {
 				panel.webview.html += "err: " + err + "<br>";
@@ -104,6 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
 						console.log('open db config:  ' + message.text);
 
 						used_config = config_string_to_config(message.text);
+						console.log(typeof used_config);
 						
 						connectAndQueryDB_plus_buildSelectionPage(panel);
 						break;
@@ -248,8 +252,9 @@ function config_string_to_config(given_config: string) {
 }
 
 /* Builds Table-Selection HTML by connecting to server using global vars */
-function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
+function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 	sql = require("mssql");
+	console.log(typeof sql);
 
 	// Establish connection using either config or connectionstring
 	let connection_object;
@@ -262,14 +267,16 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 	else {
 		connection_object = undefined;
 	}
-	sql.connect(connection_object, function (err: any) {
+	sql.connect(connection_object, function (err: Error | AggregateError) {
 		if (err) {
 			panel.webview.html += "err: " + err + "<br>";
 		}
 		
 		let request = new sql.Request();
 
-		request.query('SELECT * FROM INFORMATION_SCHEMA.TABLES', function (err: any, recordset: any) {
+		request.query(
+			'SELECT * FROM INFORMATION_SCHEMA.TABLES',
+			(err: Error | AggregateError, recordset: any) => {
 		
 			if (err) {
 				panel.webview.html += "err: " + err + "<br>";
@@ -456,7 +463,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 }
 
 /* Function calling Python */
-function call_python(panel : any) {
+function call_python(panel : vscode.WebviewPanel) {
 	let options = {
 		args: [path.join(__dirname, 'output')]
 	};
@@ -497,7 +504,7 @@ function call_python(panel : any) {
 /* 	Function that writes details for an anonymization order to a file for python.
 	Draws Connection details from global vars.
 */
-function write_order(tables: string, limit : any, panel : any) {
+function write_order(tables: string, limit : number, panel : vscode.WebviewPanel) {
 	panel.webview.html = `
 	<!DOCTYPE html>
 	<html lang="en">
@@ -574,7 +581,7 @@ function write_order(tables: string, limit : any, panel : any) {
 	content += tables;
 
 	// Write order to file
-	fs.writeFile(path_string, content, function(err : any) {
+	fs.writeFile(path_string, content, (err : Error | AggregateError) => {
 		if(err) {
 			return console.log(err);
 		}
