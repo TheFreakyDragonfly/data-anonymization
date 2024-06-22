@@ -430,10 +430,12 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 						</table>
 					</div>
 
-					<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
-					<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>
-					<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>
-					<div id="previous_button" class="nav_button_round" onclick="previous_entry()"><</div>
+					<div id="button_container">
+						<div id="previous_button" class="nav_button_round" onclick="previous_entry()"><</div>
+						<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>
+						<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>
+						<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
+					</div>
 					<script>
 						all_tables = document.getElementsByClassName("item_table");
 						active_index = 0;

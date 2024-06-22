@@ -124,32 +124,40 @@ body {
     position: absolute;
     left: 8vw;
     top: 10vh;
-    width: 84vw;
+    width: auto;
     height: auto;
+    padding: 0.3vh 0.2vw 0.3vh 0.2vw;
+    background-color: #4f4f4f;
+    border-radius: 0.8vh;
 }
 
 #list_tables p {
     all: unset;
     float: left;
-    box-sizing: border-box;
-    width: 12vw;
-    height: 5vh;
-    padding: 0.5vh 0.4vw 0.5vh 0.4vw;
-    background-color: #dddddd;
+    width: 11.4vw;
+    height: 4vh;
+    line-height: 3vh;
+    margin: 0.5vh 0.3vw 0.5vh 0.3vw;
     text-align: center;
+    vertical-align: middle;
     font-size: 1.5vh;
-    border: 0.2vh solid black;
-    border-radius: 1vh;
     color: #000000;
     user-select: none;
     cursor: pointer;
+    transition: 120ms;
+    border-radius: 0.8vh;
 }
 
 #list_tables p:hover {
-    background-color: white;
+    background-color: #8f8f8f;
 }
 
 #list_tables p.selected_table {
+    background-color: white;
+    font-weight: 500;
+}
+
+#list_tables p.sected_table:hover {
     background-color: white;
 }
 
@@ -159,8 +167,22 @@ body {
     top: 55vh;
     width: 84vw;
     height: 35vh;
-    background-color: aqua;
+    background-color: #afafaf;
     color: #000000;
+}
+
+#preview_table {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    font-size: 1.65vh;
+
+}
+
+table, th, td {
+    border: 0.2vh solid #4f4f4f;
+    border-collapse: collapse;
+    box-sizing: border-box;
 }
 
 #checkbox_anonymize {
@@ -172,7 +194,7 @@ body {
 #checkbox_and_label {
     position: absolute;
     left: 8vw;
-    top: 40vh;
+    top: 50vh;
     font-size: 2.5vh;
     user-select: none;
     cursor: pointer;
@@ -195,39 +217,39 @@ body {
     cursor: pointer;
 }
 
-.nav_button_round {
+#button_container {
     position: absolute;
+    top: 4vh;
+    left: 44vw;
+    width: auto;
+    height: auto;
+}
+
+.nav_button_round {
     width: 2vw;
     height: 2vw;
-    background-color: #dddddd;
+    background-color: #000000;
     text-align: center;
     line-height: 2vw;
     border-radius: calc(2vw / 2);
     font-size: 2vh;
-    color: #000000;
+    color: #ffffff;
     user-select: none;
     cursor: pointer;
+    float: left;
 }
 
 #back_button {
-    left: 90vw;
-    top: 5vh;
+    margin-left: 1vw;
 }
 
 #run_button {
     width: 3vw;
-    left: 86vw;
-    top: 5vh;
+    margin-left: 1vw;
 }
 
 #next_button {
-    left: 83vw;
-    top: 5vh;
-}
-
-#previous_button {
-    left: 80vw;
-    top: 5vh;
+    margin-left: 1vw;
 }
 
 /* Loading Spinner */
