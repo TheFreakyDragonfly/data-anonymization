@@ -23,6 +23,53 @@ let default_config = {
 };
 let default_cs = 'Server=tcp:sqls-dataanon-dev-001.database.windows.net,1433;Initial Catalog=Northwind;Persist Security Info=False;User ID=data-anon;Password=Lantanio13891!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;';
 
+function get_preview(panel : vscode.WebviewPanel, message : any) {
+	let request = new sql.Request();
+
+	let headings : string[] = [];
+	let contents : string[][] = [];
+
+	request.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + message.text + "'", function (err: any, recordset: any) {
+	
+		if (err) {
+			panel.webview.html += "err: " + err + "<br>";
+		}
+
+		for(let i = 0; i < recordset.recordset.length; i++) {
+			headings.push(recordset.recordset[i].COLUMN_NAME);
+		}
+
+		request.query('SELECT * FROM "' + message.text + '"', function (err: any, recordset: any) {
+			
+			if (err) {
+				panel.webview.html += "err: " + err + "<br>";
+			}
+
+			for(let i = 0; i < recordset.recordset.length; i++) {
+				contents[i] = [];
+				
+				Object.keys(recordset.recordset[i]).forEach(function(key,index) {
+					// key: the name of the object key
+					// index: the ordinal position of the key within the object 
+					let value = recordset.recordset[i][key];
+					if ((value !== null) && (value.length > 50) && !(value instanceof Buffer)) {
+						value = value.substring(0, 36);
+						value += " ...";
+					}
+					contents[i].push(value);
+				});
+			}
+
+			let data = {
+				headings: headings,
+				contents: contents
+			};
+
+			panel.webview.postMessage({ command: 'give_preview', content: data });
+		});
+	});
+}
+
 /* Action performed when Command is activated */
 export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('data-anon-extension.runAnonymisationDialog', () => {
@@ -70,50 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
 						break;
 
 					case 'get_preview':
-						let request = new sql.Request();
-
-						let headings : string[] = [];
-						let contents : string[][] = [];
-
-						request.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '" + message.text + "'", function (err: any, recordset: any) {
-						
-							if (err) {
-								panel.webview.html += "err: " + err + "<br>";
-							}
-
-							for(let i = 0; i < recordset.recordset.length; i++) {
-								headings.push(recordset.recordset[i].COLUMN_NAME);
-							}
-
-							request.query('SELECT * FROM "' + message.text + '"', function (err: any, recordset: any) {
-								
-								if (err) {
-									panel.webview.html += "err: " + err + "<br>";
-								}
-
-								for(let i = 0; i < recordset.recordset.length; i++) {
-									contents[i] = [];
-									
-									Object.keys(recordset.recordset[i]).forEach(function(key,index) {
-										// key: the name of the object key
-										// index: the ordinal position of the key within the object 
-										let value = recordset.recordset[i][key];
-										if ((value !== null) && (value.length > 50) && !(value instanceof Buffer)) {
-											value = value.substring(0, 36);
-											value += " ...";
-										}
-										contents[i].push(value);
-									});
-								}
-
-								let data = {
-									headings: headings,
-									contents: contents
-								};
-		
-								panel.webview.postMessage({ command: 'give_preview', content: data });
-							});
-						});
+						get_preview(panel, message);
 						
 						break;
 
@@ -442,6 +446,9 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: any) {
 			`;
 
 			panel.webview.html = constructed_page;
+			get_preview(panel, {
+				text: recordset_by_itself[0].TABLE_NAME
+			});
 		});
 	});
 }
