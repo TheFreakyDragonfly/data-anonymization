@@ -131,33 +131,56 @@ body {
     border-radius: 0.8vh;
 }
 
-#list_tables p {
-    all: unset;
+.div_item_table {
     float: left;
+    margin: 0.5vh 0.3vw 0.5vh 0.3vw;
     width: 11.4vw;
     height: 4vh;
+}
+
+.item_table {
+    all: unset;
+    position: relative;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
     line-height: 3vh;
-    margin: 0.5vh 0.3vw 0.5vh 0.3vw;
     text-align: center;
-    vertical-align: middle;
     font-size: 1.5vh;
     color: #000000;
     user-select: none;
     cursor: pointer;
     transition: 120ms;
     border-radius: 0.8vh;
+    /*background-color: #6f6f6f;*/
 }
 
-#list_tables p:hover {
-    background-color: #8f8f8f;
+.item_table_marker {
+    position: relative;
+    left: 48%;
+    top: calc(-0.75vh - 15%);
+    display: inline-block;
+    width: 4%;
+    height: 15%;
+    background-color: red;
+    border-top-left-radius: 0.5vh;
+    border-top-right-radius: 0.5vh;
+    border-bottom-left-radius: 0.5vh;
+    border-bottom-right-radius: 0.5vh;
 }
 
-#list_tables p.selected_table {
+.item_table:hover {
+    background-color: #9f9f9f;
+}
+
+.item_table.selected_table {
     background-color: white;
     font-weight: 500;
 }
 
-#list_tables p.sected_table:hover {
+.item_table.sected_table:hover {
     background-color: white;
 }
 

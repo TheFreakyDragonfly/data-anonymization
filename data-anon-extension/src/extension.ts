@@ -298,6 +298,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 					<link rel="stylesheet" href="${style}">
 					<script>
 						var all_tables = null;
+						var all_markers = null;
 						var active_index = -1;
 						var all_tables_status = null;
 						var checkbox = null;
@@ -368,9 +369,15 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 						function checkbox_change() {
 							if(checkbox.checked == true) {
 								all_tables_status[active_index] = true;
+								all_markers[active_index].style.backgroundColor = "green";
+								all_markers[active_index].style.width = "10%";
+							all_markers[active_index].style.left = "45%";
 							}
 							else {
 								all_tables_status[active_index] = false;
+							all_markers[active_index].style.backgroundColor = "red";
+							all_markers[active_index].style.width = "4%";
+							all_markers[active_index].style.left = "48%";
 							}
 						}
 
@@ -419,9 +426,12 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 			let recordset_by_itself = recordset.recordset;
 			let recordset_length = recordset_by_itself.length;
 			for(let i = 0; i < recordset_length; i++) {
+				constructed_page += '<div class="div_item_table">';
 				constructed_page += '<p class="item_table" onclick="select(this)">';
 				constructed_page += recordset_by_itself[i].TABLE_NAME;
 				constructed_page += "</p>";
+				constructed_page += '<div class="item_table_marker"></div>';
+				constructed_page += '</div>';
 			}
 
 			// SETUP End of Page
@@ -445,6 +455,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 					</div>
 					<script>
 						all_tables = document.getElementsByClassName("item_table");
+						all_markers = document.getElementsByClassName("item_table_marker");
 						active_index = 0;
 						all_tables[active_index].classList.add("selected_table");
 						all_tables_status = Array(all_tables.length).fill(false);
