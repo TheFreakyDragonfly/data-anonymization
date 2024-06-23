@@ -159,7 +159,7 @@ body {
 .item_table_marker {
     position: relative;
     left: 48%;
-    top: calc(-0.75vh - 15%);
+    top: calc(-0.90vh - 25%);
     display: inline-block;
     width: 4%;
     height: 15%;
