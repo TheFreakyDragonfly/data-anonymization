@@ -124,7 +124,7 @@ body {
     position: absolute;
     left: 8vw;
     top: 10vh;
-    width: auto;
+    width: 84vw;
     height: auto;
     padding: 0.3vh 0.2vw 0.3vh 0.2vw;
     background-color: #4f4f4f;
@@ -154,7 +154,6 @@ body {
     cursor: pointer;
     transition: 120ms;
     border-radius: 0.8vh;
-    /*background-color: #6f6f6f;*/
 }
 
 .item_table_marker {
@@ -190,8 +189,10 @@ body {
     top: 55vh;
     width: 84vw;
     height: 35vh;
-    background-color: #afafaf;
     color: #000000;
+    background-color: #0d0d0d;
+    padding: 1vh;
+    border-radius: 0.8vh;
 }
 
 #preview_table {
@@ -199,13 +200,25 @@ body {
     padding: 0;
     margin: 0;
     font-size: 1.65vh;
-
 }
 
 table, th, td {
-    border: 0.2vh solid #4f4f4f;
+    border: 0.2vh solid #3f3f3f;
     border-collapse: collapse;
     box-sizing: border-box;
+    color: #dfdfdf;
+}
+
+td, th {
+    padding: 0.6vh;
+}
+
+th {
+    background-color: #1d1d1d;
+}
+
+td {
+    background-color: #121212;
 }
 
 #checkbox_anonymize {
@@ -217,10 +230,13 @@ table, th, td {
 #checkbox_and_label {
     position: absolute;
     left: 8vw;
-    top: 50vh;
+    top: 49vh;
     font-size: 2.5vh;
     user-select: none;
     cursor: pointer;
+    background-color: #0d0d0d;
+    padding: 0.7vh;
+    border-radius: 0.8vh;
 }
 
 #trust_and_label {
