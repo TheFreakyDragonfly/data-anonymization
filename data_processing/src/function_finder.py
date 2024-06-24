@@ -7,6 +7,7 @@ from personal import Personal
 from LLMInteractor import LLMInteractor
 from ExtensionHelper import ext_print
 import translators as ts
+
 all_countries = [country.name for country in countries]  # postalcode customerid
 
 
@@ -32,8 +33,8 @@ class FunctionFinder:
 
         # match different cases
         if ((re.match(r"\bid\b", c_low) or re.match(r".*[a-z]I[dD]\b", column_name))
-                and re.match('([a-zA-Z]+)|([0-9]+)', example_data)):
-            return anonymize_id
+                and re.match('([a-zA-Z]+)|(\\d+)', example_data)):
+            return Personal.anonymize_something
 
         if re.match(r"\bcompany\b", c_low):
             return anonymize_company_name
@@ -61,8 +62,8 @@ class FunctionFinder:
             return Finance.anonymize_iban
 
         if (re.match(r"\bdate\b", c_low)
-                or re.match(r'\d{2}[\-./]\d{2}[\-./]\d{4}', str(example_data))
-                or re.match(r'\d{4}[\-./]\d{2}[\-./]\d{2}', str(example_data))):
+                or re.match('\\d{2}([-./])\\d{2}\1\\d{4}', str(example_data))
+                or re.match('\\d{4}([-./])\\d{2}\1\\d{2}', str(example_data))):
             return Personal.anonymizing_date
 
         formatted_country = ts.translate_text(str(example_data)).title()
@@ -83,10 +84,12 @@ class FunctionFinder:
                 or re.match(r"([a-zA-Z]-)?\d{4,5}(-\d{3})?", str(example_data))):
             return anonymize_postal_code
 
-        if (re.match(r".*name\b", c_low)
-                or re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())
-                or re.match("\\D+,\\D+", str(example_data).rstrip())):
-            return anonymize_name  # personal anonymize name?
+        if (re.match(r".*name\b", c_low) or
+                re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())):
+            return Personal.anonymize_name_forward
+        elif (re.match(r".*name\b", c_low)
+              or re.match("\\D+,\\D+", str(example_data).rstrip())):
+            return Personal.anonymize_name_backwards
 
         if (re.match(r".*price\b", c_low)
                 or re.match(r".*[$€].*", example_data)):

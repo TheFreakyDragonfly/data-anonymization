@@ -1,5 +1,7 @@
 from faker import Faker
 import hashlib
+from personal import Personal
+from random import choices
 
 
 # General Functions
@@ -27,10 +29,6 @@ def anonymize_name(name):
     return Faker().name()
 
 
-def anonymize_id(given_id):
-    return (int(given_id) / 100) * 100 + 100
-
-
 def anonymize_company_name(company_name):
     return Faker().company()
 
@@ -45,18 +43,17 @@ def anonymize_email(email):
 
 
 def anonymize_position(position):
-    return "Employee"
+    positions = ["Employee", "Chef", "Assistant Manager", "Intern", "Apprentice"]
+    return choices(positions)[0]
 
 
 def anonymize_phone(phone):
-    return 'XXX-XXX-XXXX'
+    return Personal.anonymize_something(phone)
 
 
 def generalize_address(value):
-    parts = value.split(',')
-    if len(parts) > 1:
-        return parts[-2].strip() + ', ' + parts[-1].strip()
-    return value
+    return Faker().address()
+
 
 def anonymize_postal_code(value):
-    return 0
+    return Personal.anonymize_something(value)
