@@ -80,7 +80,7 @@ class FunctionFinder:
                 or re.match(r".*transaction number.*", c_low)):
             return Finance.anonymize_by_replacing
 
-        if (re.match(r"\bpostal code\b", c_low)
+        if (re.match(r"\bpostal\s?code\b", c_low)
                 or re.match(r"([a-zA-Z]-)?\d{4,5}(-\d{3})?", str(example_data))):
             return anonymize_postal_code
 
