@@ -84,13 +84,16 @@ class FunctionFinder:
                 or re.match(r"([a-zA-Z]-)?\d{4,5}(-\d{3})?", str(example_data))):
             return anonymize_postal_code
 
-        if (re.match(r".*name\b", c_low) or
+        if (re.match(r"\b[Nn]ame\b", c_low) and
                 re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())):
             return Personal.anonymize_name_forward
-        elif (re.match(r".*name\b", c_low)
-              or re.match("\\D+,\\D+", str(example_data).rstrip())):
+        elif (re.match(r"\b[Nn]ame\b", c_low)
+              and re.match("\\D+,\\D+", str(example_data).rstrip())):
             return Personal.anonymize_name_backwards
 
+        if (re.match("\bcontact.?title\b", c_low):
+            return anonymize_position
+            
         if (re.match(r".*price\b", c_low)
                 or re.match(r".*[$€].*", example_data)):
             return anonymize_nothing
