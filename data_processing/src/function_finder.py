@@ -61,7 +61,7 @@ class FunctionFinder:
                 and len(example_data) >= 16):
             return Finance.anonymize_iban
 
-        if (re.match(r"\bdate\b", c_low)
+        if (re.match(r".*date\b", c_low)
                 or re.match('\\d{2}([-./])\\d{2}\1\\d{4}', str(example_data))
                 or re.match('\\d{4}([-./])\\d{2}\1\\d{2}', str(example_data))):
             return Personal.anonymizing_date
