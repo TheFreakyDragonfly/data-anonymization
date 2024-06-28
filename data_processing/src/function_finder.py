@@ -91,7 +91,7 @@ class FunctionFinder:
               and re.match("\\D+,\\D+", str(example_data).rstrip())):
             return Personal.anonymize_name_backwards
 
-        if (re.match("\bcontact.?title\b", c_low):
+        if (re.match("\bcontact.?title\b", c_low)):
             return anonymize_position
             
         if (re.match(r".*price\b", c_low)
