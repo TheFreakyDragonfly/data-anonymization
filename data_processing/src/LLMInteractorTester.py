@@ -15,7 +15,7 @@ class TestFunctionSelection(unittest.TestCase):
                 'Victuailles en stock',
                 'Suprêmes délices'
             ],
-            functions=[anonymize_name, anonymize_company_name]
+            functions=[anonymize_person_name, anonymize_company_name]
         )
         # Assuming that the expected chosen function is anonymize_company_name
         self.assertEqual(anonymize_company_name.__name__, chosen_function.__name__)

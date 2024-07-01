@@ -25,7 +25,7 @@ def hash_value(value):
 
 
 # Functions for specific cases
-def anonymize_name(name):
+def anonymize_person_name(name):
     return Faker().name()
 
 
