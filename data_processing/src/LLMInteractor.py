@@ -66,7 +66,10 @@ class LLMInteractor:
 
         messages = [{'role': 'user', 'content': prompt}]
 
-        stream = ollama.chat(model='llama3', messages=messages, stream=True)
+        stream = ollama.chat(
+            model=self.llm,
+            messages=messages,
+            stream=True)
 
         chosen_function_name = ""
         for chunk in stream:
