@@ -10,6 +10,8 @@ import translators as ts
 
 all_countries = [country.name for country in countries]  # postalcode customerid
 
+llmi = LLMInteractor()
+
 
 class FunctionFinder:
     @staticmethod
@@ -21,9 +23,8 @@ class FunctionFinder:
         :param allow_llm: Yes or no to asking llm for categorization.
         :return: Matched function.
         """
-        example_data = str(example_data)
-        # TODO Improve existing cases
         # set up useful variables
+        example_data = str(example_data)
         c_low = column_name.lower()
 
         if len(column_name) > 250:
@@ -61,7 +62,7 @@ class FunctionFinder:
                 and len(example_data) >= 16):
             return Finance.anonymize_iban
 
-        if (re.match(r"\bdate\b", c_low)
+        if (re.match(r".*date\b", c_low)
                 or re.match('\\d{2}([-./])\\d{2}\1\\d{4}', str(example_data))
                 or re.match('\\d{4}([-./])\\d{2}\1\\d{2}', str(example_data))):
             return Personal.anonymizing_date
@@ -80,17 +81,27 @@ class FunctionFinder:
                 or re.match(r".*transaction number.*", c_low)):
             return Finance.anonymize_by_replacing
 
-        if (re.match(r"\bpostal code\b", c_low)
+        if (re.match(r"\bpostal\s?code\b", c_low)
                 or re.match(r"([a-zA-Z]-)?\d{4,5}(-\d{3})?", str(example_data))):
             return anonymize_postal_code
 
-        if (re.match(r".*name\b", c_low) or
-                re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())):
-            return Personal.anonymize_name_forward
-        elif (re.match(r".*name\b", c_low)
-              or re.match("\\D+,\\D+", str(example_data).rstrip())):
-            return Personal.anonymize_name_backwards
+        if re.match(r".*name\b", c_low):
+            chosen = llmi.llm_choose_option(
+                column_name=column_name,
+                column_data=[example_data],
+                functions=[anonymize_person_name, anonymize_company_name]
+            )
+            if chosen.__name__ == anonymize_person_name.__name__:
+                if re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip()):
+                    return Personal.anonymize_name_forward
+                elif re.match("\\D+,\\D+", str(example_data).rstrip()):
+                    return Personal.anonymize_name_backwards
+            elif chosen.__name__ == anonymize_company_name.__name__:
+                return anonymize_company_name
 
+        if (re.match("\bcontact.?title\b", c_low)):
+            return anonymize_position
+            
         if (re.match(r".*price\b", c_low)
                 or re.match(r".*[$€].*", example_data)):
             return anonymize_nothing
@@ -101,7 +112,6 @@ class FunctionFinder:
         # Ask llm as last measure
         if allow_llm:
             ext_print('Asking LLM about Column "' + column_name + '"')
-            llmi = LLMInteractor()
             answer = llmi.ask_about_column_name(column_name)
             ext_print('LLM Answer: ' + str(answer))
 

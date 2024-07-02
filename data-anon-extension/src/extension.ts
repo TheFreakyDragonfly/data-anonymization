@@ -275,7 +275,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 		let request = new sql.Request();
 
 		request.query(
-			'SELECT * FROM INFORMATION_SCHEMA.TABLES',
+			"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA <> 'sys'",
 			(err: Error | AggregateError, recordset: any) => {
 		
 			if (err) {

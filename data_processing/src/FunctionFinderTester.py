@@ -79,39 +79,39 @@ class TestFunctionFinder(unittest.TestCase):
 
     def test_finding_name(self):
         self.assertEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('name', 'xxxxx')
         )
         self.assertEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('lastname', 'xxxxx')
         )
         self.assertNotEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('namesake', 'xxxxx')
         )
         self.assertEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('xxxx', 'John Doe')
         )
         self.assertEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('xxxx', 'Max Mustermann')
         )
         self.assertEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('xxxx', 'Martin Luther King Jr.')
         )
         self.assertEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('xxxx', 'Johannes Paul II.')
         )
         self.assertEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('xxxx', 'John, Elton')
         )
         self.assertNotEqual(
-            anonymize_name,
+            anonymize_person_name,
             matcher('xxxx', ',')
         )
 
