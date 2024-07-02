@@ -10,6 +10,8 @@ import translators as ts
 
 all_countries = [country.name for country in countries]  # postalcode customerid
 
+llmi = LLMInteractor()
+
 
 class FunctionFinder:
     @staticmethod
@@ -83,12 +85,19 @@ class FunctionFinder:
                 or re.match(r"([a-zA-Z]-)?\d{4,5}(-\d{3})?", str(example_data))):
             return anonymize_postal_code
 
-        if (re.match(r"\b[Nn]ame\b", c_low) and
-                re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip())):
-            return Personal.anonymize_name_forward
-        elif (re.match(r"\b[Nn]ame\b", c_low)
-              and re.match("\\D+,\\D+", str(example_data).rstrip())):
-            return Personal.anonymize_name_backwards
+        if re.match(r".*name\b", c_low):
+            chosen = llmi.llm_choose_option(
+                column_name=column_name,
+                column_data=[example_data],
+                functions=[anonymize_person_name, anonymize_company_name]
+            )
+            if chosen.__name__ == anonymize_person_name.__name__:
+                if re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip()):
+                    return Personal.anonymize_name_forward
+                elif re.match("\\D+,\\D+", str(example_data).rstrip()):
+                    return Personal.anonymize_name_backwards
+            elif chosen.__name__ == anonymize_company_name.__name__:
+                return anonymize_company_name
 
         if (re.match("\bcontact.?title\b", c_low)):
             return anonymize_position
@@ -103,7 +112,6 @@ class FunctionFinder:
         # Ask llm as last measure
         if allow_llm:
             ext_print('Asking LLM about Column "' + column_name + '"')
-            llmi = LLMInteractor()
             answer = llmi.ask_about_column_name(column_name)
             ext_print('LLM Answer: ' + str(answer))
 
