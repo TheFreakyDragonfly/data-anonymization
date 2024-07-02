@@ -36,10 +36,7 @@ def anonymize_company_name(company_name):
 def anonymize_email(email):
     faker = Faker()
 
-    splits = email.split(".")
-    domain = splits[len(splits)-1]
-
-    return faker.email(True, domain)
+    return faker.email(True)
 
 
 def anonymize_position(position):
