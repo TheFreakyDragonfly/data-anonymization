@@ -91,12 +91,12 @@ class FunctionFinder:
                 column_data=[example_data],
                 functions=[anonymize_person_name, anonymize_company_name]
             )
-            if chosen.__name__ == anonymize_person_name.__name__:
+            if chosen is not None and chosen.__name__ == anonymize_person_name.__name__:
                 if re.match('([A-Z][a-zäöüß\\-\\s]+\\s?)+', str(example_data).rstrip()):
                     return Personal.anonymize_name_forward
                 elif re.match("\\D+,\\D+", str(example_data).rstrip()):
                     return Personal.anonymize_name_backwards
-            elif chosen.__name__ == anonymize_company_name.__name__:
+            elif chosen is not None and chosen.__name__ == anonymize_company_name.__name__:
                 return anonymize_company_name
 
         if (re.match("\bcontact.?title\b", c_low)):
