@@ -193,6 +193,7 @@ body {
     background-color: #0d0d0d;
     padding: 1vh;
     border-radius: 0.8vh;
+    overflow: scroll;
 }
 
 #preview_table {
@@ -211,6 +212,7 @@ table, th, td {
 
 td, th {
     padding: 0.6vh;
+    overflow: hidden;
 }
 
 th {
