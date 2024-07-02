@@ -21,9 +21,8 @@ class FunctionFinder:
         :param allow_llm: Yes or no to asking llm for categorization.
         :return: Matched function.
         """
-        example_data = str(example_data)
-        # TODO Improve existing cases
         # set up useful variables
+        example_data = str(example_data)
         c_low = column_name.lower()
 
         if len(column_name) > 250:
