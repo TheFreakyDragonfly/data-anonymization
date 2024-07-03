@@ -17,6 +17,7 @@ class LLMInteractor:
         self.llm = llm_name
 
     def ask_about_column_name(self, column_name):
+        ext_print('[LLMProgress] Asking LLM about Column "' + column_name + '"')
         yes_count = 0
         no_count = 0
 
@@ -50,9 +51,15 @@ class LLMInteractor:
                 yes_tendency = yes_count / (yes_count + no_count)
                 ext_print('[tendency] ' + column_name + ';' + str(yes_tendency))
 
-        return yes_tendency >= threshold_yes
+        answer = yes_tendency >= threshold_yes
+
+        ext_print('[LLMProgress] LLM Answer: ' + str(answer))
+
+        ext_print('[LLMProgress] ...')
+        return answer
 
     def llm_choose_option(self, column_name, column_data, functions):
+        ext_print('[LLMProgress] LLM is choosing for "' + column_name + '"')
         prompt = (
             f"You are given a column called '{column_name}' and the following data examples:\n"
             f"{', '.join(column_data[:5])}\n"
@@ -78,7 +85,9 @@ class LLMInteractor:
         chosen_function_name = chosen_function_name.strip()
         print("LLM response (chosen function name):")
         print(chosen_function_name)
+        ext_print('[LLMProgress] LLM has chosen')
 
         chosen_option = next((func for func in functions if func.__name__ == chosen_function_name), None)
 
+        ext_print('[LLMProgress] ...')
         return chosen_option

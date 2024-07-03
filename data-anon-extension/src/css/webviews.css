@@ -307,11 +307,45 @@ td {
 #currentStep {
     position: absolute;
     left: 30vw;
-    top: 56vh;
+    top: 64vh;
     width: 40vw;
     text-align: center;
     font-size: 3vh;
     user-select: none;
+}
+
+.info_thingy {
+    background-color: #0d0d0d;
+    position: absolute;
+    text-align: left;
+    font-size: 2vh;
+    user-select: none;
+    padding: 1vh;
+    border-radius: 0.7vh;
+}
+
+#current_step {
+    right: 10vw;
+    top: 62vh;
+    width: 20vw;
+}
+
+#current_table {
+    left: 40vw;
+    top: 62vh;
+    width: 20vw;
+}
+
+#overall_progress {
+    left: 10vw;
+    top: 62vh;
+    width: 20vw;
+}
+
+#llm_progress {
+    left: 20vw;
+    top: 69vh;
+    width: 60vw;
 }
 
 #spinner {

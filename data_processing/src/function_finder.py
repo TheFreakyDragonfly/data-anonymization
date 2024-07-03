@@ -111,9 +111,7 @@ class FunctionFinder:
 
         # Ask llm as last measure
         if allow_llm:
-            ext_print('Asking LLM about Column "' + column_name + '"')
             answer = llmi.ask_about_column_name(column_name)
-            ext_print('LLM Answer: ' + str(answer))
 
             if answer:
                 return censor_fully

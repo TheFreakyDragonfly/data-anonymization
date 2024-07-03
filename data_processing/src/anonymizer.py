@@ -2,6 +2,7 @@ import pyodbc
 import csv
 from pathlib import Path
 from ExtensionHelper import ext_print
+from TableProgress import TableProgress
 from function_finder import FunctionFinder
 from standalone_anonymization_functions import censor_fully
 
@@ -79,20 +80,27 @@ def start_anonymization(cs, server, database, username, password, trust, tables,
     ext_print("Fetched Tables")
 
     # go through tables of db
+    progress = TableProgress(len(tables))
+    progress.print_progress()
     for table in db_tables:
         # launch anonymization when it matches tables in anonymization order
         if table.TABLE_NAME in tables:
-            anonymize_table(cursor, table, row_cap)
+            ext_print('[CurrentTable] ' + table.TABLE_NAME)
+            anonymize_table(cursor, table, row_cap, progress)
+            progress.increase_progress(0.5)
 
+    ext_print('[CurrentTable] -')
+    ext_print('[CurrentStep] -')
     ext_print("Finished all tables")
 
 
-def anonymize_table(cursor, table, row_cap):
+def anonymize_table(cursor, table, row_cap, progress: TableProgress):
     """
     Anonymizes a given table.
     :param table:
     :param cursor:
     :param row_cap:
+    :param progress:
     :return:
     """
 
@@ -108,28 +116,37 @@ def anonymize_table(cursor, table, row_cap):
 
     # match a function to the column
     # try first using column name, then column content, then using llm
+    ext_print('[CurrentStep] Matching Functions')
+    progress.increase_progress(0.1)
     matching = []
     for column_index, column in enumerate(columns):
         if row_one is None or len(row_one) == 0:  # exit if no data is in table
             return
+        ext_print('[CurrentStep] Matching Functions (' + str(column_index+1) + '/' + str(len(columns)) + ')')
         matched_function = FunctionFinder.match_function_by_regex_name_and_content(column.COLUMN_NAME, row_one[column_index])
 
         # select matched_function for all values in this column
         matching.append(matched_function)
 
     ext_print('Determined Matching for "' + table.TABLE_NAME + '"')
+    progress.increase_progress(0.2)
+    ext_print('[CurrentStep] Getting Full Table')
 
     # get full table
     cursor.execute(f'SELECT * FROM "{table.TABLE_NAME}"')
     full_table = cursor.fetchall()
 
     # write non-anonymized to csv
+    ext_print('[CurrentStep] Writing non-anonymized')
     path_to_csv = Path(__file__).resolve().parent.parent.parent / (table.TABLE_NAME.replace(" ", "_") + "-non.csv")
     write_to_csv(path_to_csv, columns, full_table, row_cap)
+    progress.increase_progress(0.1)
 
     # write anonymized to csv
+    ext_print('[CurrentStep] Writing anonymized')
     path_to_csv = Path(__file__).resolve().parent.parent.parent / (table.TABLE_NAME.replace(" ", "_") + ".csv")
     write_to_csv(path_to_csv, columns, full_table, row_cap, True, matching)
+    progress.increase_progress(0.1)
 
 
 def write_to_csv(path_to_csv, columns, full_table, row_cap, anonymize=False, matching=None):

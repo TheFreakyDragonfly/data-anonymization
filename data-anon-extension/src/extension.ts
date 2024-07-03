@@ -482,19 +482,23 @@ function call_python(panel : vscode.WebviewPanel) {
 
 	let pyshell = new PythonShell(path.join(__dirname, '..', '..', 'data_processing', 'src', 'order_receiver.py'));
 	pyshell.on('message', function(message) {
+		//always log to console
 		console.log(message);
-		if(message.substring(0,4) === "[S] ") { // recognise instructions for Extension
-			if(message.substring(4,15) === "[tendency] ") {
-				let rest = message.substring(15, message.length);
-				let splitted = rest.split(";");
-				let column_name = splitted[0];
-				let tendency_value = parseFloat(splitted[1]);
-				panel.webview.postMessage({ command: 'tendency', column: column_name, value: tendency_value });
+
+		let parts : String[] = message.split(" ");
+
+		if(parts.length > 2 && parts[0] === "[S]") {
+			if(parts[1] === "[CurrentStep]") {
+				panel.webview.postMessage({ command: 'current_step', value: message.substring(18) });
 			}
-			else {
-				// panel.webview.html += message + "<br>";
-				let cut_message = message.substring(4, message.length);
-				panel.webview.postMessage({ command: 'show', content: cut_message });
+			else if(parts[1] === "[CurrentTable]") {
+				panel.webview.postMessage({ command: 'current_table', value: message.substring(19) });
+			}
+			else if(parts[1] === "[OverallProgress]") {
+				panel.webview.postMessage({ command: 'overall_progress', value: message.substring(21) });
+			}
+			else if(parts[1] === "[LLMProgress]") {
+				panel.webview.postMessage({ command: 'llm_progress', value: message.substring(17) });
 			}
 		}
 	});
@@ -549,6 +553,18 @@ function write_order(tables: string, limit : number, panel : vscode.WebviewPanel
 								"Determining Tendency:<br>" + message.column + "<br>"
 								+ tendency_display;
 							break;
+						case 'current_step':
+							document.getElementById("current_step").innerHTML = message.value;
+							break;
+						case 'current_table':
+							document.getElementById("current_table").innerHTML = message.value;
+							break;
+						case 'overall_progress':
+							document.getElementById("overall_progress").innerHTML = message.value;
+							break;
+						case 'llm_progress':
+							document.getElementById("llm_progress").innerHTML = message.value;
+							break;
 					}
 				});
 			</script>
@@ -556,7 +572,10 @@ function write_order(tables: string, limit : number, panel : vscode.WebviewPanel
 		<body>
 		<p id="loading">Anonymizing</p>
 		<div id="spinner" class="lds-dual-ring"></div>
-		<p id="currentStep">...</p>
+		<p id="current_step" class="info_thingy">...</p>
+		<p id="current_table" class="info_thingy">...</p>
+		<p id="overall_progress" class="info_thingy">...</p>
+		<p id="llm_progress" class="info_thingy">...</p>
 		</body>
 	</html>
 	`;
