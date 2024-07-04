@@ -30,7 +30,8 @@ class LLMInteractor:
                           f'or "no". The piece of information is: "{column_name}"'
 
         yes_tendency = 0.0
-        for n in range(3):
+        range_lim = 3
+        for n in range(range_lim):
             messages = [{'role': 'user', 'content': message_content}]
 
             stream = ollama.chat(
@@ -49,7 +50,10 @@ class LLMInteractor:
                 no_count += len(no_matches)
 
                 yes_tendency = yes_count / (yes_count + no_count)
-                ext_print('[tendency] ' + column_name + ';' + str(yes_tendency))
+                ext_print(
+                    '[LLMProgress] Asking LLM about Column "' + column_name + '"'
+                    + ' (' + str(n+1) + ' / ' + str(range_lim) + ')'
+                )
 
         answer = yes_tendency >= threshold_yes
 

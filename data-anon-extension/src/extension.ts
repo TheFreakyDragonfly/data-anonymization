@@ -302,6 +302,8 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 						var active_index = -1;
 						var all_tables_status = null;
 						var checkbox = null;
+						var timer = null;
+						var preventSimpleClick = null;
 						const vscode = acquireVsCodeApi();
 
 						function message_current_preview(tablename) {
@@ -366,19 +368,41 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 							}
 						}
 
-						function checkbox_change() {
-							if(checkbox.checked == true) {
-								all_tables_status[active_index] = true;
-								all_markers[active_index].style.backgroundColor = "green";
-								all_markers[active_index].style.width = "10%";
-							all_markers[active_index].style.left = "45%";
+						function inflict_change(index) {
+							if(all_tables_status[index] == false) {
+								all_tables_status[index] = true;
+								all_markers[index].style.backgroundColor = "green";
+								all_markers[index].style.width = "10%";
+								all_markers[index].style.left = "45%";
 							}
 							else {
-								all_tables_status[active_index] = false;
-							all_markers[active_index].style.backgroundColor = "red";
-							all_markers[active_index].style.width = "4%";
-							all_markers[active_index].style.left = "48%";
+								all_tables_status[index] = false;
+								all_markers[index].style.backgroundColor = "red";
+								all_markers[index].style.width = "4%";
+								all_markers[index].style.left = "48%";
 							}
+						}
+
+						function dbl_click_select(element) {
+							let found_index = 0;
+							for(let i = 0; i < all_tables.length; i++) {
+								if(all_tables[i] == element) found_index = i;
+							}
+							console.log(found_index);
+							inflict_change(found_index);
+						}
+
+						function checkbox_change() {
+							console.log(active_index);
+							inflict_change(active_index);
+						}
+
+						function single_click(element) {
+							select(element);
+						}
+
+						function dbl_click(element) {
+							dbl_click_select(element);
 						}
 
 						window.addEventListener('message', event => {
@@ -427,7 +451,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 			let recordset_length = recordset_by_itself.length;
 			for(let i = 0; i < recordset_length; i++) {
 				constructed_page += '<div class="div_item_table">';
-				constructed_page += '<p class="item_table" onclick="select(this)">';
+				constructed_page += '<p class="item_table" onclick="single_click(this)" ondblclick="dbl_click(this)">';
 				constructed_page += recordset_by_itself[i].TABLE_NAME;
 				constructed_page += "</p>";
 				constructed_page += '<div class="item_table_marker"></div>';
