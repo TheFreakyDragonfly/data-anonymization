@@ -140,7 +140,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /* Builds HTML for Screen after successful Processing */
-function getProcessingFinishedWebviewContent(startingdate: Date, am_tables: number) {
+function getProcessingFinishedWebviewContent(startingdate: Date, am_tables: number, llm_call_amount: String) {
 	let time_remaining = (new Date()).getTime() - startingdate.getTime();
 	let hours = Math.floor(time_remaining / 3600000); // ms int-div (1000 * 60 * 60)
 	time_remaining = time_remaining - hours * 3600000;
@@ -172,7 +172,7 @@ function getProcessingFinishedWebviewContent(startingdate: Date, am_tables: numb
 				<ul id="statistics_list">
 					<li>Anonymized Tables: ${am_tables}</li>
 					<li>Used Time: ${hours}h ${minutes}m ${seconds}s</li>
-					<li>Amount of LLM Queries: ...</li>
+					<li>Amount of LLM Queries: ${llm_call_amount}</li>
 				</ul>
 				<button class="open_button" id="continue_button" onclick="message_continue()">Continue</button>
 			</body>
@@ -572,6 +572,7 @@ function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 	console.log('starting python');
 
 	let pyshell = new PythonShell(path.join(__dirname, '..', '..', 'data_processing', 'src', 'order_receiver.py'));
+	let llm_call_amount : String = "";
 	pyshell.on('message', function(message) {
 		//always log to console
 		console.log(message);
@@ -591,6 +592,9 @@ function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 			else if(parts[1] === "[LLMProgress]") {
 				panel.webview.postMessage({ command: 'llm_progress', value: message.substring(17) });
 			}
+			else if(parts[1] === "[LLMAmt]") {
+				llm_call_amount = message.substring(12);
+			}
 		}
 	});
 
@@ -602,7 +606,7 @@ function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 		console.log('Exit signal: ' + signal);
 		console.log('finished');
 		setTimeout(() => {
-			panel.webview.html = getProcessingFinishedWebviewContent(startingtime, amount_tables);
+			panel.webview.html = getProcessingFinishedWebviewContent(startingtime, amount_tables, llm_call_amount);
 			//panel.webview.html = getDatabaseSelectionWebviewContent();
 		}, 1000);
 	});

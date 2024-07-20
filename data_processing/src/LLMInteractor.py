@@ -1,6 +1,7 @@
 import ollama
 import re
 from ExtensionHelper import ext_print
+import anonymizer
 
 threshold_yes = 0.2
 
@@ -39,6 +40,7 @@ class LLMInteractor:
                 messages=messages,
                 stream=True,
             )
+            anonymizer.llm_calls += 1
 
             for chunk in stream:
                 response = chunk['message']['content']
@@ -81,6 +83,7 @@ class LLMInteractor:
             model=self.llm,
             messages=messages,
             stream=True)
+        anonymizer.llm_calls += 1
 
         chosen_function_name = ""
         for chunk in stream:

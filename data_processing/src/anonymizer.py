@@ -8,6 +8,8 @@ from standalone_anonymization_functions import censor_fully
 from configuration import *
 
 
+llm_calls = 0
+
 def config_from_cs(cs):
     config_list = []
     server_start = cs.find('Server=tcp:')
@@ -89,6 +91,8 @@ def start_anonymization(cs, server, database, username, password, trust, tables,
             ext_print('[CurrentTable] ' + table.TABLE_NAME)
             anonymize_table(cursor, table, row_cap, progress)
             progress.increase_progress(share_per_table_after)
+
+    ext_print('[LLMAmt] ' + str(llm_calls))
 
     ext_print('[CurrentTable] ...')
     ext_print('[CurrentStep] ...')
