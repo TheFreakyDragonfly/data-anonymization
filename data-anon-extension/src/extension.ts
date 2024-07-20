@@ -371,7 +371,8 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 							}
 
 							if(tables === "") {
-								alert("No tables selected!");
+								console.log("first occurance");
+								show_warning("No tables selected!");
 								return;
 							}
 
@@ -487,6 +488,13 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 									break;
 							}
 						});
+						async function show_warning(warning) {
+							console.log("warning occurance");
+							let box = document.getElementById("warning_box");
+							box.innerHTML = "Warning! : " + warning;
+							box.classList.add("show");
+							setTimeout(() => {box.classList.remove("show");}, 4000);
+						}
 					</script>
 				</head>
 				<body>	
@@ -526,10 +534,10 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 						<div class="dropdown">
 							<button class="dropbtn">Anonymize</button>
 							<div class="dropdown-content">
-								<a href="#" onclick="hand_over_to_python()">Level 1: Pseudonymization</a>
-								<a href="#">Level 2: Generalization</a>
+								<a onclick="hand_over_to_python()">Level 1: Pseudonymization</a>
+								<a >Level 2: Generalization</a>
 							</div>
-						</div> 
+						</div>
 
 						<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
 					</div>
@@ -541,6 +549,8 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 						all_tables_status = Array(all_tables.length).fill(false);
 						checkbox = document.getElementById("checkbox_anonymize");
 					</script>
+
+					<div id="warning_box" class="hide">Example text</div>
 				</body>
 			</html>
 			`;

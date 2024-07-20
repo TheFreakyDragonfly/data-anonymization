@@ -460,6 +460,7 @@ td {
     padding: 0.8vh 0.8vw;
     text-decoration: none;
     display: block;
+    cursor: pointer;
   }
   
   /* Change color of dropdown links on hover */
@@ -470,3 +471,27 @@ td {
   
   /* Change the background color of the dropdown button when the dropdown content is shown */
   .dropdown:hover .dropbtn {background-color: #0f0f0f;} 
+
+
+  #warning_box {
+    width: auto;
+    height: 6vh;
+    position: absolute;
+    top: 1vh;
+    left: 1vw;
+    padding: 1vh;
+    background-color: rgb(204, 132, 0);
+    color: black;
+    box-sizing: border-box;
+    border: rgb(142, 92, 0) 0.1vh solid;
+    border-radius: 1vh;
+    font-weight: 500;
+    font-size: 1.5vh;
+    opacity: 0;
+    transition: 2s linear all;
+  }
+
+  .show {
+    opacity: 1 !important;
+    transition: 0.25s linear all !important;
+  }
