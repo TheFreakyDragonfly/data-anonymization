@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import mssql = require('mssql');
 import {PythonShell} from 'python-shell';
 import path from 'path';
+import { time } from 'console';
 
 /* Global Variables */
 var used_config : any | undefined;
@@ -136,6 +137,47 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+/* Builds HTML for Screen after successful Processing */
+function getProcessingFinishedWebviewContent(startingdate: Date, am_tables: number) {
+	let time_remaining = (new Date()).getTime() - startingdate.getTime();
+	let hours = Math.floor(time_remaining / 3600000); // ms int-div (1000 * 60 * 60)
+	time_remaining = time_remaining - hours * 3600000;
+	let minutes = Math.floor(time_remaining / 60000);
+	time_remaining = time_remaining - minutes * 60000;
+	let seconds = Math.floor(time_remaining / 1000);
+	time_remaining = time_remaining - seconds * 1000;
+	return `
+		<!DOCTYPE html>
+		<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<title>Test</title>
+				<link rel="stylesheet" href="${style}">
+				<script>
+					const vscode = acquireVsCodeApi();
+
+					function message_continue() {
+						vscode.postMessage({
+							command: 'load_connection_form',
+							text: ''
+						});
+					}
+				</script>
+			</head>
+			<body>
+				<h1 id="page_title">Finished processing!</h1>
+				<p id="statistics_heading">Statistics:</p>
+				<ul id="statistics_list">
+					<li>Anonymized Tables: ${am_tables}</li>
+					<li>Used Time: ${hours}h ${minutes}m ${seconds}s</li>
+					<li>Amount of LLM Queries: ...</li>
+				</ul>
+				<button class="open_button" id="continue_button" onclick="message_continue()">Continue</button>
+			</body>
+		</html>
+	`;
 }
 
 /* Builds HTML for Database Connecting */
@@ -498,7 +540,8 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 }
 
 /* Function calling Python */
-function call_python(panel : vscode.WebviewPanel) {
+function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
+	let startingtime = new Date();
 	let options = {
 		args: [path.join(__dirname, 'output')]
 	};
@@ -535,7 +578,8 @@ function call_python(panel : vscode.WebviewPanel) {
 		console.log('Exit signal: ' + signal);
 		console.log('finished');
 		setTimeout(() => {
-			panel.webview.html = getDatabaseSelectionWebviewContent();
+			panel.webview.html = getProcessingFinishedWebviewContent(startingtime, amount_tables);
+			//panel.webview.html = getDatabaseSelectionWebviewContent();
 		}, 1000);
 	});
 }
@@ -640,7 +684,8 @@ function write_order(tables: string, limit : number, panel : vscode.WebviewPanel
 			return console.log(err);
 		}
 		console.log("The file was saved!");
-		call_python(panel);
+		let table_amount = tables.split(/\r\n|\r|\n/).length - 1;
+		call_python(panel, table_amount);
 	}); 
 }
 

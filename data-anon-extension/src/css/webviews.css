@@ -67,6 +67,12 @@ body {
     top: 32vh;
 }
 
+#continue_button {
+    position: absolute;
+    left: calc(50vw - 2.5vw);
+    top: calc(70vh - 2.5vh);
+}
+
 #config_inputs_div {
     position: absolute;
     left: 56vw;
@@ -353,6 +359,32 @@ td {
     left: calc(50vw - 6vh);
     top: 44vh;
     user-select: none;
+}
+
+#statistics_heading {
+    position: absolute;
+    top: 30vh;
+    left: 40vw;
+    font-size: 2.5vh;
+    background-color: #2f2f2f;
+    border-radius: 1vh;
+    padding: 1vh;
+}
+
+#statistics_list {
+    position: absolute;
+    top: 35vh;
+    left: 40vw;
+    list-style: none;
+    font-size: 2vh;
+    background-color: #2f2f2f;
+    border-radius: 1vh;
+    padding: 1vh;
+    margin-left: 0;
+}
+
+#statistics_list li {
+    margin-bottom: 0.2vh;
 }
 
 /* online source */
