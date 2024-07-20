@@ -117,8 +117,12 @@ export function activate(context: vscode.ExtensionContext) {
 						panel.webview.html = getDatabaseSelectionWebviewContent();
 						break;
 
-					case 'python':
-						write_order(message.text, 0, panel);
+					case 'python-lvl1':
+						write_order(message.text, 0, panel, "level1");
+						break;
+
+					case 'python-lvl2':
+						write_order(message.text, 0, panel, "level2");
 						break;
 
 					case 'get_preview':
@@ -137,6 +141,37 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	context.subscriptions.push(disposable);
+}
+
+function getFailedProcessingWebviewContent(reason: String) {
+	return `
+		<!DOCTYPE html>
+		<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<title>Test</title>
+				<link rel="stylesheet" href="${style}">
+				<script>
+					const vscode = acquireVsCodeApi();
+
+					function message_continue() {
+						vscode.postMessage({
+							command: 'load_connection_form',
+							text: ''
+						});
+					}
+				</script>
+			</head>
+			<body>
+				<h1 id="page_title">Failed while processing!</h1>
+				<p id="statistics_heading">Reason:</p>
+				<ul id="statistics_list">
+					<li>${reason}</li>
+				</ul>
+				<button class="open_button" id="continue_button" onclick="message_continue()">Continue</button>
+			</body>
+		</html>
+	`;
 }
 
 /* Builds HTML for Screen after successful Processing */
@@ -362,7 +397,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 							});
 						}
 
-						function hand_over_to_python() {
+						function hand_over_to_python(python_lvl) {
 							let tables = "";
 							for(let i = 0; i < all_tables.length; i++) {
 								if(all_tables_status[i] == true) {
@@ -377,7 +412,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 							}
 
 							vscode.postMessage({
-								command: 'python',
+								command: python_lvl,
 								text: tables
 							});
 						}
@@ -530,12 +565,12 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 						<div id="previous_button" class="nav_button_round" onclick="previous_entry()"><</div>
 						<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>
 
-						<!--<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>-->
+						<!--<div id="run_button" class="nav_button_round" onclick="hand_over_to_python("python-lvl1")">Run</div>-->
 						<div class="dropdown">
 							<button class="dropbtn">Anonymize</button>
 							<div class="dropdown-content">
-								<a onclick="hand_over_to_python()">Level 1: Pseudonymization</a>
-								<a >Level 2: Generalization</a>
+								<a onclick="hand_over_to_python('python-lvl1')">Level 1: Pseudonymization</a>
+								<a onclick="hand_over_to_python('python-lvl2')">Level 2: Generalization</a>
 							</div>
 						</div>
 
@@ -566,9 +601,6 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 /* Function calling Python */
 function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 	let startingtime = new Date();
-	let options = {
-		args: [path.join(__dirname, 'output')]
-	};
 	console.log('starting python');
 
 	let pyshell = new PythonShell(path.join(__dirname, '..', '..', 'data_processing', 'src', 'order_receiver.py'));
@@ -600,7 +632,9 @@ function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 
 	pyshell.end(function (err, code, signal) {
 		if(err) {
-			throw err;
+			console.log("Error encountered: " + err.message);
+			panel.webview.html = getFailedProcessingWebviewContent(err.message);
+			return;
 		}
 		console.log('Exit code: ' + code);
 		console.log('Exit signal: ' + signal);
@@ -615,7 +649,7 @@ function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 /* 	Function that writes details for an anonymization order to a file for python.
 	Draws Connection details from global vars.
 */
-function write_order(tables: string, limit : number, panel : vscode.WebviewPanel) {
+function write_order(tables: string, limit : number, panel : vscode.WebviewPanel, mode: String) {
 	panel.webview.html = `
 	<!DOCTYPE html>
 	<html lang="en">
@@ -702,6 +736,9 @@ function write_order(tables: string, limit : number, panel : vscode.WebviewPanel
 
 	content += "[Limit]" + "\n";
 	content += "lim=" + limit + "\n";
+
+	content += "[Mode]" + "\n";
+	content += "mod=" + mode + "\n";
 
 	content += "[Tables]\n";
 	content += tables;
