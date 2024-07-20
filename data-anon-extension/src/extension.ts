@@ -370,6 +370,11 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 								}
 							}
 
+							if(tables === "") {
+								alert("No tables selected!");
+								return;
+							}
+
 							vscode.postMessage({
 								command: 'python',
 								text: tables
@@ -516,7 +521,16 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 					<div id="button_container">
 						<div id="previous_button" class="nav_button_round" onclick="previous_entry()"><</div>
 						<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>
-						<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>
+
+						<!--<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>-->
+						<div class="dropdown">
+							<button class="dropbtn">Anonymize</button>
+							<div class="dropdown-content">
+								<a href="#" onclick="hand_over_to_python()">Level 1: Pseudonymization</a>
+								<a href="#">Level 2: Generalization</a>
+							</div>
+						</div> 
+
 						<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
 					</div>
 					<script>
