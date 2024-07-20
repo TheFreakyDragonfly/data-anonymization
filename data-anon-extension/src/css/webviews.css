@@ -475,10 +475,10 @@ td {
 
   #warning_box {
     width: auto;
-    height: 6vh;
+    height: auto;
     position: absolute;
-    top: 1vh;
-    left: 1vw;
+    top: -6vh;
+    left: 2vw;
     padding: 1vh;
     background-color: rgb(204, 132, 0);
     color: black;
@@ -492,6 +492,7 @@ td {
   }
 
   .show {
+    top: 4vh !important;
     opacity: 1 !important;
     transition: 0.25s linear all !important;
   }
