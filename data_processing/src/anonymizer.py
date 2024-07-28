@@ -6,9 +6,8 @@ from TableProgress import TableProgress
 from function_finder import FunctionFinder
 from standalone_anonymization_functions import censor_fully
 from configuration import *
+import configuration
 
-
-llm_calls = 0
 
 def config_from_cs(cs):
     config_list = []
@@ -92,7 +91,7 @@ def start_anonymization(cs, server, database, username, password, trust, tables,
             anonymize_table(cursor, table, row_cap, progress)
             progress.increase_progress(share_per_table_after)
 
-    ext_print('[LLMAmt] ' + str(llm_calls))
+    ext_print('[LLMAmt] ' + str(configuration.llm_calls))
 
     ext_print('[CurrentTable] ...')
     ext_print('[CurrentStep] ...')

@@ -267,7 +267,7 @@ function getDatabaseSelectionWebviewContent() {
 				<p class="section_title" id="config_title" onclick="message_default_config()">Use SQL-Connection</p>
 				<div id="config_inputs_div">
 					<input class="input_general" id="user" placeholder="User"/><br>
-					<input class="input_general" id="password" placeholder="Password"/><br>
+					<input class="input_general" id="password" placeholder="Password" type="password"/><br>
 					<input class="input_general" id="server" placeholder="Server"/><br>
 					<input class="input_general" id="database" placeholder="Database"/><br>
 					<div id="trust_and_label">
