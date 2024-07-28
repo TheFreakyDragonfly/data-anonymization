@@ -12,11 +12,11 @@ def take_order():
     path_to_order = Path(__file__).resolve().parent.parent.parent / "order.order"
 
     # set empty variables
-    cs = '' # looks like: Server=tcp:sqls-dataanon-dev-001.database.windows.net,1433;Initial Catalog=Northwind;Persist Security Info=False;User ID=data-anon;Password=Lantanio13891!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-    server = ''  # looks like: sqls-dataanon-dev-001.database.windows.net
-    database = ''  # looks like: Northwind
-    username = ''  # looks like: data-anon
-    password = ''  # looks like: Lantanio13891!
+    cs = ''  # removed
+    server = ''  # removed
+    database = ''  # removed
+    username = ''  # removed
+    password = ''  # removed
     trust = False
 
     # get content of variables and list of tables from order.order

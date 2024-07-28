@@ -11,18 +11,6 @@ var used_cs: string | undefined;
 var style : vscode.Uri;
 var sql : any;
 
-/* Connection Details for Azure DB; for copy & pasting or testing */
-let default_config = {
-	user: 'data-anon',
-	password: 'Lantanio13891!',
-	server: 'sqls-dataanon-dev-001.database.windows.net', 
-	database: 'Northwind',
-	options: {
-		encrypt: true
-	}
-};
-let default_cs = 'Server=tcp:sqls-dataanon-dev-001.database.windows.net,1433;Initial Catalog=Northwind;Persist Security Info=False;User ID=data-anon;Password=Lantanio13891!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;';
-
 function get_preview(panel : vscode.WebviewPanel, message : any) {
 	let request = new sql.Request();
 
@@ -230,19 +218,11 @@ function getDatabaseSelectionWebviewContent() {
 					const vscode = acquireVsCodeApi();
 
 					function message_default_cs() {
-						vscode.postMessage({
-							command: 'open_db_cs',
-							text: 'Server=tcp:sqls-dataanon-dev-001.database.windows.net,1433;Initial Catalog=Northwind;Persist Security Info=False;User ID=data-anon;Password=Lantanio13891!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
-						});
-						show_trying_to_open();
+						// removed
 					}
 
 					function message_default_config() {
-						vscode.postMessage({
-							command: 'open_db_config',
-							text: 'data-anon;Lantanio13891!;sqls-dataanon-dev-001.database.windows.net;Northwind'
-						});
-						show_trying_to_open();
+						// removed
 					}
 
 					function message_connectionstring() {
