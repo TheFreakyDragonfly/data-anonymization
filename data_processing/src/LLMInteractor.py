@@ -1,6 +1,7 @@
 import ollama
 import re
 from ExtensionHelper import ext_print
+import configuration
 
 threshold_yes = 0.2
 
@@ -39,6 +40,7 @@ class LLMInteractor:
                 messages=messages,
                 stream=True,
             )
+            configuration.llm_calls += 1
 
             for chunk in stream:
                 response = chunk['message']['content']
@@ -63,13 +65,16 @@ class LLMInteractor:
         return answer
 
     def llm_choose_option(self, column_name, column_data, functions):
+        """
+        Returns None if no function matches.
+        """
         ext_print('[LLMProgress] LLM is choosing for "' + column_name + '"')
         prompt = (
             f"You are given a column called '{column_name}' and the following data examples:\n"
             f"{', '.join(column_data[:5])}\n"
             f"Choose the most appropriate function from the following list to process this data:\n"
             f"{', '.join([func.__name__ for func in functions])}\n"
-            f"Provide only the function name as the answer."
+            f"Provide only the function name as the answer. If no functions match, write other."
         )
 
         print("Prompt sent to LLM:")
@@ -81,6 +86,7 @@ class LLMInteractor:
             model=self.llm,
             messages=messages,
             stream=True)
+        configuration.llm_calls += 1
 
         chosen_function_name = ""
         for chunk in stream:

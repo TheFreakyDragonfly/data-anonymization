@@ -11,18 +11,6 @@ var used_cs: string | undefined;
 var style : vscode.Uri;
 var sql : any;
 
-/* Connection Details for Azure DB; for copy & pasting or testing */
-let default_config = {
-	user: 'data-anon',
-	password: 'Lantanio13891!',
-	server: 'sqls-dataanon-dev-001.database.windows.net', 
-	database: 'Northwind',
-	options: {
-		encrypt: true
-	}
-};
-let default_cs = 'Server=tcp:sqls-dataanon-dev-001.database.windows.net,1433;Initial Catalog=Northwind;Persist Security Info=False;User ID=data-anon;Password=Lantanio13891!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;';
-
 function get_preview(panel : vscode.WebviewPanel, message : any) {
 	let request = new sql.Request();
 
@@ -117,8 +105,12 @@ export function activate(context: vscode.ExtensionContext) {
 						panel.webview.html = getDatabaseSelectionWebviewContent();
 						break;
 
-					case 'python':
-						write_order(message.text, 0, panel);
+					case 'python-lvl1':
+						write_order(message.text, 0, panel, "level1");
+						break;
+
+					case 'python-lvl2':
+						write_order(message.text, 0, panel, "level2");
 						break;
 
 					case 'get_preview':
@@ -139,8 +131,39 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(disposable);
 }
 
+function getFailedProcessingWebviewContent(reason: String) {
+	return `
+		<!DOCTYPE html>
+		<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<title>Test</title>
+				<link rel="stylesheet" href="${style}">
+				<script>
+					const vscode = acquireVsCodeApi();
+
+					function message_continue() {
+						vscode.postMessage({
+							command: 'load_connection_form',
+							text: ''
+						});
+					}
+				</script>
+			</head>
+			<body>
+				<h1 id="page_title">Failed while processing!</h1>
+				<p id="statistics_heading">Reason:</p>
+				<ul id="statistics_list">
+					<li>${reason}</li>
+				</ul>
+				<button class="open_button" id="continue_button" onclick="message_continue()">Continue</button>
+			</body>
+		</html>
+	`;
+}
+
 /* Builds HTML for Screen after successful Processing */
-function getProcessingFinishedWebviewContent(startingdate: Date, am_tables: number) {
+function getProcessingFinishedWebviewContent(startingdate: Date, am_tables: number, llm_call_amount: String) {
 	let time_remaining = (new Date()).getTime() - startingdate.getTime();
 	let hours = Math.floor(time_remaining / 3600000); // ms int-div (1000 * 60 * 60)
 	time_remaining = time_remaining - hours * 3600000;
@@ -172,7 +195,7 @@ function getProcessingFinishedWebviewContent(startingdate: Date, am_tables: numb
 				<ul id="statistics_list">
 					<li>Anonymized Tables: ${am_tables}</li>
 					<li>Used Time: ${hours}h ${minutes}m ${seconds}s</li>
-					<li>Amount of LLM Queries: ...</li>
+					<li>Amount of LLM Queries: ${llm_call_amount}</li>
 				</ul>
 				<button class="open_button" id="continue_button" onclick="message_continue()">Continue</button>
 			</body>
@@ -195,19 +218,11 @@ function getDatabaseSelectionWebviewContent() {
 					const vscode = acquireVsCodeApi();
 
 					function message_default_cs() {
-						vscode.postMessage({
-							command: 'open_db_cs',
-							text: 'Server=tcp:sqls-dataanon-dev-001.database.windows.net,1433;Initial Catalog=Northwind;Persist Security Info=False;User ID=data-anon;Password=Lantanio13891!;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
-						});
-						show_trying_to_open();
+						// removed
 					}
 
 					function message_default_config() {
-						vscode.postMessage({
-							command: 'open_db_config',
-							text: 'data-anon;Lantanio13891!;sqls-dataanon-dev-001.database.windows.net;Northwind'
-						});
-						show_trying_to_open();
+						// removed
 					}
 
 					function message_connectionstring() {
@@ -252,7 +267,7 @@ function getDatabaseSelectionWebviewContent() {
 				<p class="section_title" id="config_title" onclick="message_default_config()">Use SQL-Connection</p>
 				<div id="config_inputs_div">
 					<input class="input_general" id="user" placeholder="User"/><br>
-					<input class="input_general" id="password" placeholder="Password"/><br>
+					<input class="input_general" id="password" placeholder="Password" type="password"/><br>
 					<input class="input_general" id="server" placeholder="Server"/><br>
 					<input class="input_general" id="database" placeholder="Database"/><br>
 					<div id="trust_and_label">
@@ -362,7 +377,7 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 							});
 						}
 
-						function hand_over_to_python() {
+						function hand_over_to_python(python_lvl) {
 							let tables = "";
 							for(let i = 0; i < all_tables.length; i++) {
 								if(all_tables_status[i] == true) {
@@ -370,8 +385,14 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 								}
 							}
 
+							if(tables === "") {
+								console.log("first occurance");
+								show_warning("No tables selected!");
+								return;
+							}
+
 							vscode.postMessage({
-								command: 'python',
+								command: python_lvl,
 								text: tables
 							});
 						}
@@ -482,6 +503,13 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 									break;
 							}
 						});
+						async function show_warning(warning) {
+							console.log("warning occurance");
+							let box = document.getElementById("warning_box");
+							box.innerHTML = "Warning! : " + warning;
+							box.classList.add("show");
+							setTimeout(() => {box.classList.remove("show");}, 4000);
+						}
 					</script>
 				</head>
 				<body>	
@@ -516,7 +544,16 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 					<div id="button_container">
 						<div id="previous_button" class="nav_button_round" onclick="previous_entry()"><</div>
 						<div id="next_button" class="nav_button_round" onclick="next_entry()">></div>
-						<div id="run_button" class="nav_button_round" onclick="hand_over_to_python()">Run</div>
+
+						<!--<div id="run_button" class="nav_button_round" onclick="hand_over_to_python("python-lvl1")">Run</div>-->
+						<div class="dropdown">
+							<button class="dropbtn">Anonymize</button>
+							<div class="dropdown-content">
+								<a onclick="hand_over_to_python('python-lvl1')">Level 1: Pseudonymization</a>
+								<a onclick="hand_over_to_python('python-lvl2')">Level 2: Generalization</a>
+							</div>
+						</div>
+
 						<div id="back_button" class="nav_button_round" onclick="message_go_back()">X</div>
 					</div>
 					<script>
@@ -527,6 +564,8 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 						all_tables_status = Array(all_tables.length).fill(false);
 						checkbox = document.getElementById("checkbox_anonymize");
 					</script>
+
+					<div id="warning_box" class="hide">Example text</div>
 				</body>
 			</html>
 			`;
@@ -542,12 +581,10 @@ function connectAndQueryDB_plus_buildSelectionPage(panel: vscode.WebviewPanel) {
 /* Function calling Python */
 function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 	let startingtime = new Date();
-	let options = {
-		args: [path.join(__dirname, 'output')]
-	};
 	console.log('starting python');
 
 	let pyshell = new PythonShell(path.join(__dirname, '..', '..', 'data_processing', 'src', 'order_receiver.py'));
+	let llm_call_amount : String = "";
 	pyshell.on('message', function(message) {
 		//always log to console
 		console.log(message);
@@ -567,18 +604,23 @@ function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 			else if(parts[1] === "[LLMProgress]") {
 				panel.webview.postMessage({ command: 'llm_progress', value: message.substring(17) });
 			}
+			else if(parts[1] === "[LLMAmt]") {
+				llm_call_amount = message.substring(12);
+			}
 		}
 	});
 
 	pyshell.end(function (err, code, signal) {
 		if(err) {
-			throw err;
+			console.log("Error encountered: " + err.message);
+			panel.webview.html = getFailedProcessingWebviewContent(err.message);
+			return;
 		}
 		console.log('Exit code: ' + code);
 		console.log('Exit signal: ' + signal);
 		console.log('finished');
 		setTimeout(() => {
-			panel.webview.html = getProcessingFinishedWebviewContent(startingtime, amount_tables);
+			panel.webview.html = getProcessingFinishedWebviewContent(startingtime, amount_tables, llm_call_amount);
 			//panel.webview.html = getDatabaseSelectionWebviewContent();
 		}, 1000);
 	});
@@ -587,7 +629,7 @@ function call_python(panel : vscode.WebviewPanel, amount_tables: number) {
 /* 	Function that writes details for an anonymization order to a file for python.
 	Draws Connection details from global vars.
 */
-function write_order(tables: string, limit : number, panel : vscode.WebviewPanel) {
+function write_order(tables: string, limit : number, panel : vscode.WebviewPanel, mode: String) {
 	panel.webview.html = `
 	<!DOCTYPE html>
 	<html lang="en">
@@ -674,6 +716,9 @@ function write_order(tables: string, limit : number, panel : vscode.WebviewPanel
 
 	content += "[Limit]" + "\n";
 	content += "lim=" + limit + "\n";
+
+	content += "[Mode]" + "\n";
+	content += "mod=" + mode + "\n";
 
 	content += "[Tables]\n";
 	content += tables;

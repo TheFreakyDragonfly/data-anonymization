@@ -15,15 +15,15 @@ def matcher(cname, cval):
 class TestFunctionFinder(unittest.TestCase):
     def test_finding_id(self):
         self.assertEqual(
-            anonymize_id,
+            Personal.anonymize_something,
             matcher('id', 'AFAIK')
         )
         self.assertEqual(
-            anonymize_id,
+            Personal.anonymize_something,
             matcher('CustomerID', '121')
         )
         self.assertNotEqual(
-            anonymize_id,
+            Personal.anonymize_something,
             matcher('kid', 'joseph')
         )
 
@@ -244,7 +244,7 @@ class TestFunctionFinder(unittest.TestCase):
         )
         self.assertEqual(
             Personal.anonymize_country.__name__,
-            matcher('xxxxx', 'Lietuva').__name__ # Lithuania in Lithuanian
+            matcher('xxxxx', 'Lietuva').__name__  # Lithuania in Lithuanian
         )
         self.assertNotEqual(
             Personal.anonymize_country.__name__,
